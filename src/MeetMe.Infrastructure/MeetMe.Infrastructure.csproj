@@ -16,5 +16,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.5" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MeetMe.Application\MeetMe.Application.csproj" />
+  </ItemGroup>
   
 </Project>

@@ -1,6 +1,7 @@
-﻿namespace MeetMe.Application;
-
-public class Class1
+﻿namespace MeetMe.Application
 {
+    public class Class1
+    {
 
+    }
 }

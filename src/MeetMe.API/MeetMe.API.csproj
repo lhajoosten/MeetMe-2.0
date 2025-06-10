@@ -32,4 +32,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MeetMe.Application\MeetMe.Application.csproj" />
+    <ProjectReference Include="..\MeetMe.Infrastructure\MeetMe.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

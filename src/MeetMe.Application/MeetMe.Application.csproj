@@ -18,4 +18,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MeetMe.Domain\MeetMe.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
