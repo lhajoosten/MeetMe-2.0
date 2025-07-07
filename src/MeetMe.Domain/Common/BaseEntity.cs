@@ -16,7 +16,7 @@ namespace MeetMe.Domain.Common
         /// <summary>
         /// Audit information - creation date
         /// </summary>
-        public DateTime CreatedDate { get; protected set; } = DateTime.UtcNow;
+        public DateTime CreatedDate { get; protected set; } = DateTime.Now;
 
         /// <summary>
         /// Audit information - ID of the user who created this entity

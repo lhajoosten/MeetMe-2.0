@@ -22,4 +22,10 @@
     <ProjectReference Include="..\MeetMe.Domain\MeetMe.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Models\" />
+    <Folder Include="Common\Abstraction\" />
+    <Folder Include="Common\Interfaces\" />
+  </ItemGroup>
+
 </Project>

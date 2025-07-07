@@ -11,6 +11,10 @@ namespace MeetMe.Domain.Entities
         public string? Bio { get; private set; }
         public string? ProfilePictureUrl { get; private set; }
         public bool IsActive { get; private set; } = true;
+        public int RoleId { get; private set; }
+
+        public MMIdentity Identity { get; private set; }
+        public Role Role { get; private set; }
 
         public ICollection<Meeting> CreatedMeetings { get; private set; } = new List<Meeting>();
         public ICollection<Attendance> Attendances { get; private set; } = new List<Attendance>();
@@ -34,6 +38,19 @@ namespace MeetMe.Domain.Entities
             };
         }
 
+        public static User CreateFromIdentity(MMIdentity identity)
+        {
+            Guard.Against.Null(identity, nameof(identity), "Identity cannot be null when creating a user from identity.");
+            
+            return new User
+            {
+                Identity = identity,
+                FirstName = identity.FirstName ?? string.Empty,
+                LastName = identity.LastName ?? string.Empty,
+                Email = Email.Create(identity.Email ?? string.Empty),
+            };
+        }
+
         public void UpdateProfile(string firstName, string lastName, string? bio, string? profilePictureUrl)
         {
             FirstName = firstName;
@@ -43,6 +60,42 @@ namespace MeetMe.Domain.Entities
 
             LastModifiedDate = DateTime.Now;
         }
+
+        public void UpdateEmail(string email)
+        {
+            Guard.Against.NullOrEmpty(email, nameof(email), "Email cannot be null or empty.");
+
+            Email = Email.Create(email);
+            LastModifiedDate = DateTime.Now;
+        }
+
+        public void SetPrimaryRole(Role role)
+        {
+            Guard.Against.Null(role, nameof(role), "Role cannot be null when setting primary role.");
+         
+            PrimaryRole = role;
+            LastModifiedDate = DateTime.Now;
+        }
+
+        public void SetIdentity(MMIdentity identity)
+        {
+            Guard.Against.Null(identity, nameof(identity), "Identity cannot be null when setting user identity.");
+            
+            if (Identity != null)
+            {
+                throw new InvalidOperationException("Identity is already set for this user.");
+            }
+
+            Identity = identity;
+            LastModifiedDate = DateTime.Now;
+        }
+
+        public void Activate()
+        {
+            IsActive = true;
+            LastModifiedDate = DateTime.Now;
+        }
+
 
         public void Deactivate()
         {
