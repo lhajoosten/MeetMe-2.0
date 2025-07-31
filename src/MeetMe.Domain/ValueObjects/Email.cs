@@ -31,6 +31,16 @@ public class Email : ValueObject
         return new Email(value.ToLowerInvariant()); // Normalize to lowercase
     }
 
+    public static bool IsValidEmail(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length > MaxLength)
+        {
+            return false;
+        }
+
+        return EmailRegex.IsMatch(value);
+    }
+
     protected override IEnumerable<object> GetEqualityComponents()
     {
         yield return Value;

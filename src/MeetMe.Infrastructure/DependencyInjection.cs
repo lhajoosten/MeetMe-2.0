@@ -1,7 +1,9 @@
 using MeetMe.Application.Common.Interfaces;
+using MeetMe.Application.Services;
 using MeetMe.Domain.Entities;
 using MeetMe.Infrastructure.Data;
 using MeetMe.Infrastructure.Repositories;
+using MeetMe.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +52,10 @@ namespace MeetMe.Infrastructure
 
             // Add Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Add Application Services
+            services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<IPasswordService, PasswordService>();
 
             return services;
         }

@@ -1,5 +1,6 @@
 using Ardalis.GuardClauses;
 using MeetMe.Domain.Common;
+using MeetMe.Domain.ValueObjects;
 
 namespace MeetMe.Domain.Entities
 {
@@ -8,6 +9,7 @@ namespace MeetMe.Domain.Entities
         public string FirstName { get; private set; } = string.Empty;
         public string LastName { get; private set; } = string.Empty;
         public Email Email { get; private set; } = null!;
+        public string PasswordHash { get; private set; } = string.Empty;
         public string? Bio { get; private set; }
         public string? ProfilePictureUrl { get; private set; }
         public int RoleId { get; private set; }
@@ -34,6 +36,24 @@ namespace MeetMe.Domain.Entities
                 FirstName = firstName,
                 LastName = lastName,
                 Email = Email.Create(email),
+                Bio = bio
+            };
+        }
+
+        public static User Create(string firstName, string lastName, Email email, string passwordHash, string? bio = null)
+        {
+            Guard.Against.NullOrEmpty(firstName, nameof(firstName), "First name cannot be null or empty.");
+            Guard.Against.NullOrEmpty(lastName, nameof(lastName), "Last name cannot be null or empty.");
+            Guard.Against.Null(email, nameof(email), "Email cannot be null.");
+            Guard.Against.NullOrEmpty(passwordHash, nameof(passwordHash), "Password hash cannot be null or empty.");
+
+            return new User
+            {
+                Id = Guid.NewGuid(),
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+                PasswordHash = passwordHash,
                 Bio = bio
             };
         }
