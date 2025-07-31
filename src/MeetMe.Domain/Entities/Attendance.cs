@@ -8,9 +8,8 @@ namespace MeetMe.Domain.Entities
     {
         public Guid UserId { get; private set; }
         public Guid MeetingId { get; private set; }
-        public AttendanceStatus Status { get; private set; }
+        public AttendanceStatus Status { get; private set; } = AttendanceStatus.Confirmed;
         public DateTime JoinedAt { get; private set; }
-        public bool IsActive { get; private set; } = true;
 
         public User User { get; private set; } = null!;
         public Meeting Meeting { get; private set; } = null!;
@@ -42,14 +41,14 @@ namespace MeetMe.Domain.Entities
 
             Status = status;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id;
+            LastModifiedByUserId = user.Id.ToString();
         }
 
         public void Leave(User user)
         {
             IsActive = false;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id;
+            LastModifiedByUserId = user.Id.ToString();
 
             AddDomainEvent(new UserLeftMeetingEvent(this));
         }

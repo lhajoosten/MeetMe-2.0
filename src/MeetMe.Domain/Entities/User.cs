@@ -3,18 +3,17 @@ using MeetMe.Domain.Common;
 
 namespace MeetMe.Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : BaseEntity<Guid>
     {
         public string FirstName { get; private set; } = string.Empty;
         public string LastName { get; private set; } = string.Empty;
         public Email Email { get; private set; } = null!;
         public string? Bio { get; private set; }
         public string? ProfilePictureUrl { get; private set; }
-        public bool IsActive { get; private set; } = true;
         public int RoleId { get; private set; }
 
-        public MMIdentity Identity { get; private set; }
-        public Role Role { get; private set; }
+        public MMIdentity? Identity { get; private set; }
+        public Role? Role { get; private set; }
 
         public ICollection<Meeting> CreatedMeetings { get; private set; } = new List<Meeting>();
         public ICollection<Attendance> Attendances { get; private set; } = new List<Attendance>();
@@ -31,6 +30,7 @@ namespace MeetMe.Domain.Entities
 
             return new User
             {
+                Id = Guid.NewGuid(),
                 FirstName = firstName,
                 LastName = lastName,
                 Email = Email.Create(email),
@@ -73,7 +73,7 @@ namespace MeetMe.Domain.Entities
         {
             Guard.Against.Null(role, nameof(role), "Role cannot be null when setting primary role.");
          
-            PrimaryRole = role;
+            Role = role;
             LastModifiedDate = DateTime.Now;
         }
 

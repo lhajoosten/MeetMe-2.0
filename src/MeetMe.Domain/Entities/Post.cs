@@ -10,7 +10,6 @@ namespace MeetMe.Domain.Entities
         public string Content { get; private set; } = string.Empty;
         public Guid AuthorId { get; private set; }
         public Guid MeetingId { get; private set; }
-        public bool IsActive { get; private set; } = true;
 
         public User Author { get; private set; } = null!;
         public Meeting Meeting { get; private set; } = null!;
@@ -48,7 +47,7 @@ namespace MeetMe.Domain.Entities
             Content = content;
         
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id;
+            LastModifiedByUserId = user.Id.ToString();
         }
 
         public void Deactivate(User user)
@@ -58,7 +57,7 @@ namespace MeetMe.Domain.Entities
             IsActive = false;
 
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id;
+            LastModifiedByUserId = user.Id.ToString();
         }
 
         public int ActiveCommentsCount => Comments.Count(c => c.IsActive);

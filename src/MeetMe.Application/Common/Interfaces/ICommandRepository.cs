@@ -17,7 +17,7 @@ namespace MeetMe.Application.Common.Interfaces
         /// <param name="userId">ID of the user performing the action (for audit)</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>The entity after it has been added</returns>
-        Task<T> AddAsync(T entity, int userId, CancellationToken cancellationToken = default);
+        Task<T> AddAsync(T entity, string userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Updates an existing entity asynchronously
@@ -26,7 +26,7 @@ namespace MeetMe.Application.Common.Interfaces
         /// <param name="userId">ID of the user performing the action (for audit)</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Task representing the asynchronous operation</returns>
-        Task UpdateAsync(T entity, int userId, CancellationToken cancellationToken = default);
+        Task UpdateAsync(T entity, string userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes an entity asynchronously
@@ -51,7 +51,7 @@ namespace MeetMe.Application.Common.Interfaces
         /// <param name="userId">ID of the user performing the action (for audit)</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Task representing the asynchronous operation</returns>
-        Task SoftDeleteAsync(T entity, int userId, CancellationToken cancellationToken = default);
+        Task SoftDeleteAsync(T entity, string userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Saves all changes to the database asynchronously

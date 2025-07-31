@@ -1,17 +1,17 @@
 using Ardalis.GuardClauses;
 using MeetMe.Domain.Common;
+using MeetMe.Domain.Events;
 using MeetMe.Domain.ValueObjects;
 
 namespace MeetMe.Domain.Entities
 {
-    public class Meeting : BaseEntity
+    public class Meeting : BaseEntity<Guid>
     {
         public string Title { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
         public Location Location { get; private set; } = null!;
         public MeetingDateTime MeetingDateTime { get; private set; } = null!;
         public int? MaxAttendees { get; private set; }
-        public bool IsActive { get; private set; } = true;
         public Guid CreatorId { get; private set; }
 
         public User Creator { get; private set; } = null!;
@@ -35,10 +35,12 @@ namespace MeetMe.Domain.Entities
 
             var meeting = new Meeting
             {
+                Id = Guid.NewGuid(),
                 Title = title,
                 Description = description,
                 Location = Location.Create(location),
                 MeetingDateTime = MeetingDateTime.Create(startDateTime, endDateTime),
+                CreatorId = creator.Id,
                 Creator = creator,
                 MaxAttendees = maxAttendees
             };
@@ -57,7 +59,7 @@ namespace MeetMe.Domain.Entities
             MeetingDateTime = MeetingDateTime.Create(startDateTime, endDateTime);
 
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id;
+            LastModifiedByUserId = user.Id.ToString();
         }
 
         public bool CanAcceptMoreAttendees()
@@ -74,7 +76,7 @@ namespace MeetMe.Domain.Entities
         {
             IsActive = false;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id;
+            LastModifiedByUserId = user.Id.ToString();
         }
 
         private readonly List<IDomainEvent> _domainEvents = new();

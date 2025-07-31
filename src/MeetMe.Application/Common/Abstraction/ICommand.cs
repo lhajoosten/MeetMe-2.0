@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using MeetMe.Application.Common.Models;
 
 namespace MeetMe.Application.Common.Abstraction

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MeetMe.Domain.Common
 {
@@ -11,33 +11,38 @@ namespace MeetMe.Domain.Common
         /// <summary>
         /// Unique identifier for the entity.
         /// </summary>
-        public TKey Id { get; protected set; }
+        public TKey Id { get; protected set; } = default!;
 
         /// <summary>
         /// Audit information - creation date
         /// </summary>
-        public DateTime CreatedDate { get; protected set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Audit information - ID of the user who created this entity
         /// </summary>
-        public int? CreatedByUserId { get; protected set; }
+        public string? CreatedByUserId { get; set; }
 
         /// <summary>
         /// Audit information - last modification date
         /// </summary>
-        public DateTime? LastModifiedDate { get; protected set; }
+        public DateTime? LastModifiedDate { get; set; }
 
         /// <summary>
         /// Audit information - ID of the user who last modified this entity
         /// </summary>
-        public int? LastModifiedByUserId { get; protected set; }
+        public string? LastModifiedByUserId { get; set; }
+
+        /// <summary>
+        /// Indicates if the entity is active (soft delete)
+        /// </summary>
+        public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// Updates the last modified auditing information  
         /// </summary>
         /// <param name="userId">ID of the user performing the update</param>
-        protected void UpdateModifiedInfo(int userId)
+        protected void UpdateModifiedInfo(string userId)
         {
             LastModifiedDate = DateTime.UtcNow;
             LastModifiedByUserId = userId;
@@ -48,7 +53,7 @@ namespace MeetMe.Domain.Common
         /// <summary>
         /// Equality comparison based on entity identity, not on entity reference
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null)
                 return false;
@@ -104,7 +109,7 @@ namespace MeetMe.Domain.Common
 
         /// <summary>
         /// Negated identity test, but *also* tells the compiler:
-        /// “If this returns true, then `left` is not null.”
+        /// "If this returns true, then `left` is not null."
         /// </summary>
         public static bool operator !=(
             [NotNullWhen(true)] BaseEntity<TKey>? left,

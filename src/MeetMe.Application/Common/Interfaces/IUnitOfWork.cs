@@ -47,6 +47,6 @@ namespace MeetMe.Application.Common.Interfaces
         /// <param name="userId">ID of the user performing the action (for audit)</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>The number of state entries written to the database</returns>
-        Task<int> SaveChangesAsync(int userId, CancellationToken cancellationToken = default);
+        Task<int> SaveChangesAsync(string userId, CancellationToken cancellationToken = default);
     }
 }
