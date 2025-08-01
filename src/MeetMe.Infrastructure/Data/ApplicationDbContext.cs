@@ -17,6 +17,7 @@ namespace MeetMe.Infrastructure.Data
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<Comment> Comments => Set<Comment>();
         public DbSet<Attendance> Attendances => Set<Attendance>();
+        public DbSet<SearchQuery> SearchQueries => Set<SearchQuery>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

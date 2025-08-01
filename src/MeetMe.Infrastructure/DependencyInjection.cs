@@ -56,6 +56,7 @@ namespace MeetMe.Infrastructure
             // Add Application Services
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IPasswordService, PasswordService>();
+            services.AddScoped<ISearchService, SearchService>();
 
             return services;
         }
