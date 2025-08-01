@@ -1,0 +1,99 @@
+<div class="meetings-container">
+  <header class="meetings-header">
+    <div class="header-content">
+      <h1>Discover Meetings</h1>
+      <p>Find and join amazing meetings in your area</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" routerLink="/users/profile">
+        <i class="icon-user"></i> Profile
+      </button>
+      <button class="btn btn-primary" routerLink="/meetings/create">
+        <i class="icon-plus"></i> Create Meeting
+      </button>
+      <button class="btn btn-secondary" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <div class="search-filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        [(ngModel)]="filters.query"
+        (input)="onSearchChange()"
+        (keyup.enter)="navigateToSearch()"
+        placeholder="Search meetings..."
+        class="search-input"
+      />
+      <button class="search-btn" (click)="navigateToSearch()" title="Advanced Search">
+        <i class="icon-search"></i>
+      </button>
+    </div>
+    <div class="filter-group">
+      <input
+        type="text"
+        [(ngModel)]="filters.location"
+        (input)="onSearchChange()"
+        placeholder="Location"
+        class="search-input"
+      />
+    </div>
+    <div class="filter-group">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="filters.isPublic"
+          (change)="onSearchChange()"
+        />
+        Public meetings only
+      </label>
+    </div>
+  </div>
+
+  <div class="meetings-grid" *ngIf="!isLoading; else loadingTemplate">
+    <div class="meeting-card" *ngFor="let meeting of meetings" (click)="viewMeeting(meeting.id)">
+      <div class="meeting-header">
+        <h3>{{ meeting.title }}</h3>
+        <span class="meeting-status" [class.public]="meeting.isPublic">
+          {{ meeting.isPublic ? 'Public' : 'Private' }}
+        </span>
+      </div>
+
+      <p class="meeting-description">{{ meeting.description }}</p>
+
+      <div class="meeting-meta">
+        <div class="meta-item">
+          <i class="icon-calendar"></i>
+          <span>{{ formatDate(meeting.startDate) }}</span>
+        </div>
+        <div class="meta-item">
+          <i class="icon-location"></i>
+          <span>{{ meeting.location }}</span>
+        </div>
+        <div class="meta-item">
+          <i class="icon-users"></i>
+          <span>{{ meeting.attendees.length }} attendees</span>
+        </div>
+      </div>
+
+      <div class="meeting-organizer">
+        <span>Organized by {{ meeting.organizer.firstName }} {{ meeting.organizer.lastName }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading meetings...</p>
+    </div>
+  </ng-template>
+
+  <div class="empty-state" *ngIf="!isLoading && meetings.length === 0">
+    <h3>No meetings found</h3>
+    <p>Try adjusting your search criteria or create a new meeting.</p>
+    <button class="btn btn-primary" routerLink="/meetings/create">Create Your First Meeting</button>
+  </div>
+</div>

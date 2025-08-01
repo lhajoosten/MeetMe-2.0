@@ -1,0 +1,134 @@
+<div class="post-card">
+  <div class="post-header">
+    <div class="author-info">
+      <div class="author-avatar">
+        {{ post.author.firstName.charAt(0) }}{{ post.author.lastName.charAt(0) }}
+      </div>
+      <div class="author-details">
+        <h5>{{ post.author.firstName }} {{ post.author.lastName }}</h5>
+        <span class="post-date">{{ formattedDate }}</span>
+      </div>
+    </div>
+
+    <div class="post-actions" *ngIf="canEditPost">
+      <button
+        class="btn-action"
+        (click)="startEdit()"
+        *ngIf="!isEditing"
+        title="Edit post">
+        ✏️
+      </button>
+      <button
+        class="btn-action danger"
+        (click)="deletePost()"
+        *ngIf="!isEditing"
+        title="Delete post">
+        🗑️
+      </button>
+    </div>
+  </div>
+
+  <div class="post-content" *ngIf="!isEditing">
+    <p>{{ post.content }}</p>
+  </div>
+
+  <div class="post-edit" *ngIf="isEditing">
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
+      <div class="form-group">
+        <textarea
+          formControlName="content"
+          class="form-control"
+          [class.error]="editForm.get('content')?.invalid && editForm.get('content')?.touched"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="edit-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cancelEdit()"
+          [disabled]="isUpdatingPost">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="editForm.invalid || isUpdatingPost">
+          {{ isUpdatingPost ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="post-footer">
+    <button
+      class="btn-footer"
+      (click)="toggleComments()"
+      [class.active]="showComments">
+      💬 {{ post.comments.length }} {{ post.comments.length === 1 ? 'Comment' : 'Comments' }}
+    </button>
+
+    <button
+      class="btn-footer"
+      (click)="toggleCommentForm()">
+      {{ showCommentForm ? 'Cancel Reply' : 'Reply' }}
+    </button>
+  </div>
+
+  <div class="comments-section" *ngIf="showComments">
+    <div class="comment-form" *ngIf="showCommentForm">
+      <form [formGroup]="commentForm" (ngSubmit)="onCommentSubmit()">
+        <div class="form-group">
+          <textarea
+            formControlName="content"
+            class="form-control"
+            [class.error]="commentContentControl?.invalid && commentContentControl?.touched"
+            placeholder="Write a comment..."
+            rows="2"
+          ></textarea>
+
+          <div class="form-footer">
+            <div class="char-counter" [class.warning]="remainingCommentChars < 50" [class.danger]="remainingCommentChars < 0">
+              {{ remainingCommentChars }} characters remaining
+            </div>
+          </div>
+        </div>
+
+        <div class="comment-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="showCommentForm = false"
+            [disabled]="isCreatingComment">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="commentForm.invalid || isCreatingComment || remainingCommentChars < 0">
+            {{ isCreatingComment ? 'Posting...' : 'Comment' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="comments-list" *ngIf="post.comments.length > 0">
+      <app-comment
+        *ngFor="let comment of post.comments; trackBy: trackByCommentId"
+        [comment]="comment"
+        [currentUserId]="currentUserId"
+        (commentUpdated)="onCommentUpdated($event)"
+        (commentDeleted)="onCommentDeleted($event)">
+      </app-comment>
+    </div>
+
+    <div class="no-comments" *ngIf="post.comments.length === 0 && showComments">
+      <p>No comments yet. Be the first to comment!</p>
+    </div>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    <small>{{ errorMessage }}</small>
+  </div>
+</div>

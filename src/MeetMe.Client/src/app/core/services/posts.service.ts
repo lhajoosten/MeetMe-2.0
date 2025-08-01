@@ -12,6 +12,10 @@ export class PostsService {
 
   constructor(private http: HttpClient) {}
 
+  getPostsByMeeting(meetingId: string): Observable<Post[]> {
+    return this.http.get<Post[]>(`${environment.apiUrl}/meetings/${meetingId}/posts`);
+  }
+
   createPost(request: CreatePostRequest): Observable<Post> {
     return this.http.post<Post>(this.baseUrl, request);
   }

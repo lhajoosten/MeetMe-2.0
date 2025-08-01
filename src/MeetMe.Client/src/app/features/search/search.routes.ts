@@ -3,7 +3,6 @@ import { Routes } from '@angular/router';
 export const searchRoutes: Routes = [
   {
     path: '',
-    redirectTo: '/meetings',
-    pathMatch: 'full'
+    loadComponent: () => import('./search-results/search-results.component').then(m => m.SearchResultsComponent)
   }
 ];

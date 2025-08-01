@@ -1,0 +1,153 @@
+<div class="create-meeting-container">
+  <div class="header">
+    <button class="btn-back" routerLink="/meetings">
+      <i class="icon-arrow-left"></i> Back to Meetings
+    </button>
+    <h1>Create New Meeting</h1>
+    <p>Organize an amazing gathering for your community</p>
+  </div>
+
+  <div class="form-container">
+    <form [formGroup]="meetingForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <h2>Basic Information</h2>
+
+        <div class="form-group">
+          <label for="title">Meeting Title *</label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            class="form-control"
+            [class.error]="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched"
+            placeholder="Enter a compelling title for your meeting"
+          />
+          <div class="error-message" *ngIf="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched">
+            <small *ngIf="meetingForm.get('title')?.errors?.['required']">Title is required</small>
+            <small *ngIf="meetingForm.get('title')?.errors?.['minlength']">Title must be at least 3 characters</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            class="form-control"
+            [class.error]="meetingForm.get('description')?.invalid && meetingForm.get('description')?.touched"
+            rows="4"
+            placeholder="Describe what your meeting is about, what attendees can expect..."
+          ></textarea>
+          <div class="error-message" *ngIf="meetingForm.get('description')?.invalid && meetingForm.get('description')?.touched">
+            <small *ngIf="meetingForm.get('description')?.errors?.['required']">Description is required</small>
+            <small *ngIf="meetingForm.get('description')?.errors?.['minlength']">Description must be at least 10 characters</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location *</label>
+          <input
+            id="location"
+            type="text"
+            formControlName="location"
+            class="form-control"
+            [class.error]="meetingForm.get('location')?.invalid && meetingForm.get('location')?.touched"
+            placeholder="Enter the meeting location or venue"
+          />
+          <div class="error-message" *ngIf="meetingForm.get('location')?.invalid && meetingForm.get('location')?.touched">
+            <small *ngIf="meetingForm.get('location')?.errors?.['required']">Location is required</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Date & Time</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Start Date & Time *</label>
+            <input
+              id="startDate"
+              type="datetime-local"
+              formControlName="startDate"
+              class="form-control"
+              [class.error]="meetingForm.get('startDate')?.invalid && meetingForm.get('startDate')?.touched"
+            />
+            <div class="error-message" *ngIf="meetingForm.get('startDate')?.invalid && meetingForm.get('startDate')?.touched">
+              <small *ngIf="meetingForm.get('startDate')?.errors?.['required']">Start date is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">End Date & Time *</label>
+            <input
+              id="endDate"
+              type="datetime-local"
+              formControlName="endDate"
+              class="form-control"
+              [class.error]="meetingForm.get('endDate')?.invalid && meetingForm.get('endDate')?.touched"
+            />
+            <div class="error-message" *ngIf="meetingForm.get('endDate')?.invalid && meetingForm.get('endDate')?.touched">
+              <small *ngIf="meetingForm.get('endDate')?.errors?.['required']">End date is required</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Meeting Settings</h2>
+
+        <div class="form-group">
+          <label for="maxAttendees">Maximum Attendees (Optional)</label>
+          <input
+            id="maxAttendees"
+            type="number"
+            formControlName="maxAttendees"
+            class="form-control"
+            min="1"
+            placeholder="Leave empty for unlimited"
+          />
+          <small class="form-hint">Set a limit on how many people can join this meeting</small>
+        </div>
+
+        <div class="form-group">
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                formControlName="isPublic"
+              />
+              <span class="checkmark"></span>
+              <div class="checkbox-content">
+                <strong>Public Meeting</strong>
+                <p>Anyone can discover and join this meeting</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          routerLink="/meetings"
+          [disabled]="isLoading"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="meetingForm.invalid || isLoading"
+        >
+          {{ isLoading ? 'Creating Meeting...' : 'Create Meeting' }}
+        </button>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <small>{{ errorMessage }}</small>
+      </div>
+    </form>
+  </div>
+</div>

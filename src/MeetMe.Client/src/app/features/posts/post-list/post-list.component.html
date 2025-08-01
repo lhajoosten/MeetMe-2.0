@@ -1,0 +1,48 @@
+<div class="post-list-container">
+	<div class="posts-header">
+		<h3>Discussion</h3>
+		<button
+			class="btn btn-primary"
+			(click)="toggleCreatePost()"
+			[class.active]="showCreatePost"
+		>
+			{{ showCreatePost ? "Cancel" : "New Post" }}
+		</button>
+	</div>
+
+	<app-create-post
+		*ngIf="showCreatePost"
+		[meetingId]="meetingId"
+		(postCreated)="onPostCreated($event)"
+		(cancelled)="showCreatePost = false"
+	>
+	</app-create-post>
+
+	<div class="posts-content" *ngIf="!isLoading && !errorMessage">
+		<div *ngIf="posts.length === 0" class="no-posts">
+			<div class="no-posts-icon">💬</div>
+			<h4>No posts yet</h4>
+			<p>Be the first to start the discussion!</p>
+		</div>
+
+		<app-post-detail
+			*ngFor="let post of posts; trackBy: trackByPostId"
+			[post]="post"
+			(postUpdated)="onPostUpdated($event)"
+			(postDeleted)="onPostDeleted($event)"
+			class="post-item"
+		>
+		</app-post-detail>
+	</div>
+
+	<div class="loading-container" *ngIf="isLoading">
+		<div class="loading-spinner"></div>
+		<p>Loading posts...</p>
+	</div>
+
+	<div class="error-container" *ngIf="errorMessage">
+		<div class="error-icon">⚠️</div>
+		<p>{{ errorMessage }}</p>
+		<button class="btn btn-secondary" (click)="loadPosts()">Try Again</button>
+	</div>
+</div>

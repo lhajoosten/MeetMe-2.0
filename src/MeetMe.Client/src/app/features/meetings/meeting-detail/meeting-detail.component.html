@@ -1,0 +1,221 @@
+<div class="meeting-detail-container" *ngIf="meeting; else loadingTemplate">
+  <!-- Header -->
+  <div class="meeting-header">
+    <button class="btn-back" routerLink="/meetings">
+      <i class="icon-arrow-left"></i> Back to Meetings
+    </button>
+
+    <div class="meeting-status-badge" [class.public]="meeting.isPublic">
+      {{ meeting.isPublic ? 'Public' : 'Private' }}
+    </div>
+
+    <h1>{{ meeting.title }}</h1>
+    <p class="meeting-description">{{ meeting.description }}</p>
+
+    <div class="meeting-meta">
+      <div class="meta-row">
+        <div class="meta-item">
+          <i class="icon-calendar"></i>
+          <div>
+            <strong>{{ formatDate(meeting.startDate) }}</strong>
+            <span>{{ formatTime(meeting.startDate) }} - {{ formatTime(meeting.endDate) }}</span>
+          </div>
+        </div>
+        <div class="meta-item">
+          <i class="icon-location"></i>
+          <div>
+            <strong>{{ meeting.location }}</strong>
+          </div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-item">
+          <i class="icon-user"></i>
+          <div>
+            <strong>Organized by</strong>
+            <span>{{ meeting.organizer.firstName }} {{ meeting.organizer.lastName }}</span>
+          </div>
+        </div>
+        <div class="meta-item">
+          <i class="icon-users"></i>
+          <div>
+            <strong>{{ meeting.attendees.length }} attendees</strong>
+            <span *ngIf="meeting.maxAttendees">
+              ({{ meeting.maxAttendees - meeting.attendees.length }} spots left)
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons" *ngIf="!isOrganizer">
+      <button
+        class="btn btn-primary"
+        *ngIf="!userAttendance"
+        (click)="joinMeeting()"
+        [disabled]="isLoading"
+      >
+        {{ isLoading ? 'Joining...' : 'Join Meeting' }}
+      </button>
+
+      <div class="attendance-status" *ngIf="userAttendance">
+        <span class="status-badge" [class]="userAttendance.status.toLowerCase()">
+          {{ userAttendance.status }}
+        </span>
+        <button
+          class="btn btn-outline"
+          (click)="leaveMeeting()"
+          [disabled]="isLoading"
+        >
+          Leave Meeting
+        </button>
+      </div>
+    </div>
+
+    <div class="organizer-actions" *ngIf="isOrganizer">
+      <button class="btn btn-secondary" (click)="editMeeting()">
+        Edit Meeting
+      </button>
+      <button class="btn btn-danger" (click)="deleteMeeting()">
+        Delete Meeting
+      </button>
+    </div>
+  </div>
+
+  <!-- Attendees Section -->
+  <div class="section attendees-section">
+    <h2>Attendees ({{ meeting.attendees.length }})</h2>
+    <div class="attendees-grid" *ngIf="meeting.attendees.length > 0; else noAttendees">
+      <div
+        class="attendee-card"
+        *ngFor="let attendance of meeting.attendees"
+      >
+        <div class="attendee-avatar">
+          <img
+            [src]="attendance.user.profilePictureUrl || '/assets/default-avatar.png'"
+            [alt]="attendance.user.firstName + ' ' + attendance.user.lastName"
+          />
+        </div>
+        <div class="attendee-info">
+          <h4>{{ attendance.user.firstName }} {{ attendance.user.lastName }}</h4>
+          <span class="attendee-status" [class]="attendance.status.toLowerCase()">
+            {{ attendance.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <ng-template #noAttendees>
+      <p class="empty-message">No attendees yet. Be the first to join!</p>
+    </ng-template>
+  </div>
+
+  <!-- Posts Section -->
+  <div class="section posts-section">
+    <h2>Discussion ({{ posts.length }})</h2>
+
+    <!-- Create Post Form -->
+    <div class="create-post-form" *ngIf="userAttendance || isOrganizer">
+      <form [formGroup]="postForm" (ngSubmit)="createPost()">
+        <div class="form-group">
+          <textarea
+            formControlName="content"
+            class="form-control"
+            rows="3"
+            placeholder="Share something with the group..."
+            [class.error]="postForm.get('content')?.invalid && postForm.get('content')?.touched"
+          ></textarea>
+          <div class="error-message" *ngIf="postForm.get('content')?.invalid && postForm.get('content')?.touched">
+            <small *ngIf="postForm.get('content')?.errors?.['required']">Please enter some content</small>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="postForm.invalid || isPostLoading"
+          >
+            {{ isPostLoading ? 'Posting...' : 'Post' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Posts List -->
+    <div class="posts-list" *ngIf="posts.length > 0; else noPosts">
+      <div class="post-card" *ngFor="let post of posts">
+        <div class="post-header">
+          <div class="post-author">
+            <img
+              [src]="post.author.profilePictureUrl || '/assets/default-avatar.png'"
+              [alt]="post.author.firstName + ' ' + post.author.lastName"
+              class="author-avatar"
+            />
+            <div class="author-info">
+              <h4>{{ post.author.firstName }} {{ post.author.lastName }}</h4>
+              <span class="post-date">{{ formatPostDate(post.createdAt) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-content">
+          {{ post.content }}
+        </div>
+
+        <div class="post-actions">
+          <button class="action-btn" (click)="toggleComments(post.id)">
+            <i class="icon-message"></i>
+            {{ post.comments.length }} comments
+          </button>
+        </div>
+
+        <!-- Comments -->
+        <div class="comments-section" *ngIf="expandedPosts.has(post.id)">
+          <div class="comments-list" *ngIf="post.comments.length > 0">
+            <div class="comment" *ngFor="let comment of post.comments">
+              <div class="comment-author">
+                <img
+                  [src]="comment.author.profilePictureUrl || '/assets/default-avatar.png'"
+                  [alt]="comment.author.firstName + ' ' + comment.author.lastName"
+                  class="comment-avatar"
+                />
+                <div class="comment-info">
+                  <strong>{{ comment.author.firstName }} {{ comment.author.lastName }}</strong>
+                  <span class="comment-date">{{ formatPostDate(comment.createdAt) }}</span>
+                </div>
+              </div>
+              <div class="comment-content">{{ comment.content }}</div>
+            </div>
+          </div>
+
+          <!-- Add Comment Form -->
+          <div class="add-comment-form" *ngIf="userAttendance || isOrganizer">
+            <textarea
+              class="form-control"
+              rows="2"
+              placeholder="Write a comment..."
+              [(ngModel)]="newCommentContent[post.id]"
+            ></textarea>
+            <button
+              class="btn btn-sm btn-primary"
+              (click)="addComment(post.id)"
+              [disabled]="!newCommentContent[post.id] || !newCommentContent[post.id].trim()"
+            >
+              Comment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noPosts>
+      <p class="empty-message">No posts yet. Start the conversation!</p>
+    </ng-template>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading meeting details...</p>
+  </div>
+</ng-template>
