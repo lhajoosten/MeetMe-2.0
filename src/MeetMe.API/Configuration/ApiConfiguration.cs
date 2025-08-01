@@ -14,15 +14,27 @@ namespace MeetMe.API.Configuration
             {
                 options.AddPolicy("CorsPolicy", builder =>
                 {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
+                    if (configuration.GetValue<bool>("AllowAllOrigins", false))
+                    {
+                        // Development - allow all origins
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    }
+                    else
+                    {
+                        // Production - restrict to specific origins
+                        builder.WithOrigins("http://localhost:4200", "https://localhost:4200", "https://yourdomain.com")
+                               .AllowAnyMethod()
+                               .AllowAnyHeader()
+                               .AllowCredentials();
+                    }
                 });
             });
 
             // Add JWT Authentication
             var jwtSettings = configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings["SecretKey"];
+            var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured");
 
             services.AddAuthentication(options =>
             {

@@ -6,6 +6,7 @@ using MeetMe.Application.Features.Authentication.DTOs;
 using MeetMe.Application.Services;
 using MeetMe.Domain.Entities;
 using MeetMe.Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
 
 namespace MeetMe.Application.Features.Authentication.Commands.Register;
 
@@ -17,6 +18,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IPasswordService _passwordService;
     private readonly IMapper _mapper;
+    private readonly RoleManager<Role> _roleManager;
 
     public RegisterCommandHandler(
         ICommandRepository<User, Guid> userCommandRepository,
@@ -24,7 +26,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         IUnitOfWork unitOfWork,
         IJwtTokenService jwtTokenService,
         IPasswordService passwordService,
-        IMapper mapper)
+        IMapper mapper,
+        RoleManager<Role> roleManager)
     {
         _userCommandRepository = userCommandRepository;
         _userQueryRepository = userQueryRepository;
@@ -32,6 +35,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         _jwtTokenService = jwtTokenService;
         _passwordService = passwordService;
         _mapper = mapper;
+        _roleManager = roleManager;
     }
 
     public async Task<Result<AuthenticationResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -68,12 +72,23 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
             // Hash password
             var hashedPassword = _passwordService.HashPassword(request.Password);
 
+            // Get the default Member role
+            var memberRole = await _roleManager.FindByNameAsync("Member");
+            
+            if (memberRole == null)
+            {
+                return Result.Failure<AuthenticationResult>("Default Member role not found. Please contact system administrator.");
+            }
+
             // Create new user
             var user = User.Create(
                 request.FirstName,
                 request.LastName,
                 email,
                 hashedPassword);
+
+            // Set the default role
+            user.SetPrimaryRole(memberRole);
 
             // Use a temporary user ID for audit (the user doesn't exist yet)
             var tempUserId = "SYSTEM_REGISTRATION";

@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using MeetMe.Application.Common.Models;
+using System.Reflection;
 
 namespace MeetMe.Application.Common.Behaviors
 {
@@ -43,8 +44,12 @@ namespace MeetMe.Application.Common.Behaviors
                 if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
                 {
                     var resultType = typeof(TResponse).GetGenericArguments()[0];
-                    var failureMethod = typeof(Result<>).MakeGenericType(resultType).GetMethod("Failure");
-                    return (TResponse)failureMethod!.Invoke(null, new object[] { errorMessage })!;
+                    // Use dynamic to call Result.Failure<T>(errorMessage)
+                    dynamic result = typeof(Result)
+                        .GetMethod("Failure", BindingFlags.Public | BindingFlags.Static)!
+                        .MakeGenericMethod(resultType)
+                        .Invoke(null, new object[] { errorMessage })!;
+                    return (TResponse)result;
                 }
 
                 if (typeof(TResponse) == typeof(Result))

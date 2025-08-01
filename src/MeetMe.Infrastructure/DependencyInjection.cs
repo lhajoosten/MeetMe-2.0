@@ -41,6 +41,8 @@ namespace MeetMe.Infrastructure
                 options.SignIn.RequireConfirmedEmail = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
             })
+            .AddRoles<Role>()
+            .AddRoleManager<RoleManager<Role>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
