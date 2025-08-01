@@ -1,5 +1,6 @@
 using MediatR;
-using MeetMe.Application.Features.Authentication.Commands;
+using MeetMe.Application.Features.Authentication.Commands.Login;
+using MeetMe.Application.Features.Authentication.Commands.Register;
 using MeetMe.Application.Features.Authentication.DTOs;
 using Microsoft.AspNetCore.Mvc;
 

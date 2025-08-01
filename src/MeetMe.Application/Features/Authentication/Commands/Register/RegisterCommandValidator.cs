@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MeetMe.Application.Features.Authentication.Commands;
+namespace MeetMe.Application.Features.Authentication.Commands.Register;
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {

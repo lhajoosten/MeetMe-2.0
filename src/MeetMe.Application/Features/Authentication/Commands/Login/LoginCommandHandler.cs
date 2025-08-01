@@ -7,7 +7,7 @@ using MeetMe.Application.Services;
 using MeetMe.Domain.Entities;
 using MeetMe.Domain.ValueObjects;
 
-namespace MeetMe.Application.Features.Authentication.Commands;
+namespace MeetMe.Application.Features.Authentication.Commands.Login;
 
 public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthenticationResult>>
 {

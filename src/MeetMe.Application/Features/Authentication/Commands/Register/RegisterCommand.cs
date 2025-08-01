@@ -2,7 +2,7 @@ using MediatR;
 using MeetMe.Application.Common.Models;
 using MeetMe.Application.Features.Authentication.DTOs;
 
-namespace MeetMe.Application.Features.Authentication.Commands;
+namespace MeetMe.Application.Features.Authentication.Commands.Register;
 
 public record RegisterCommand : IRequest<Result<AuthenticationResult>>
 {

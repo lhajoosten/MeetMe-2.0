@@ -8,8 +8,8 @@ namespace MeetMe.Domain.Entities
     {
         public string Content { get; private set; } = string.Empty;
         public Guid AuthorId { get; private set; }
-        public Guid PostId { get; private set; }
-        public Guid? ParentCommentId { get; private set; }
+        public int PostId { get; private set; }
+        public int? ParentCommentId { get; private set; }
 
         public User Author { get; private set; } = null!;
         public Post Post { get; private set; } = null!;

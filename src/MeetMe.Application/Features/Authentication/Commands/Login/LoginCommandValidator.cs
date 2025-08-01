@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MeetMe.Application.Features.Authentication.Commands;
+namespace MeetMe.Application.Features.Authentication.Commands.Login;
 
 public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
