@@ -12,16 +12,27 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+# Copy all project files for restore
 COPY ["src/MeetMe.API/MeetMe.API.csproj", "src/MeetMe.API/"]
-RUN dotnet restore "./src/MeetMe.API/MeetMe.API.csproj"
+COPY ["src/MeetMe.Application/MeetMe.Application.csproj", "src/MeetMe.Application/"]
+COPY ["src/MeetMe.Infrastructure/MeetMe.Infrastructure.csproj", "src/MeetMe.Infrastructure/"]
+COPY ["src/MeetMe.Domain/MeetMe.Domain.csproj", "src/MeetMe.Domain/"]
+
+# Restore dependencies
+RUN dotnet restore "src/MeetMe.API/MeetMe.API.csproj"
+
+# Copy source code
 COPY . .
+
+# Build the application
 WORKDIR "/src/src/MeetMe.API"
-RUN dotnet build "./MeetMe.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "MeetMe.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./MeetMe.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MeetMe.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final

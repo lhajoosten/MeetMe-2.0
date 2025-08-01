@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  meetme-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: meetme-database-dev
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - meetme_db_data_dev:/var/opt/mssql
+    networks:
+      - meetme-network
+
+  # .NET API Backend (Development mode with hot reload)
+  meetme-api:
+    build:
+      context: .
+      dockerfile: src/MeetMe.API/Dockerfile
+      target: build
+    container_name: meetme-backend-dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=meetme-db;Database=MeetMeDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;MultipleActiveResultSets=true
+    ports:
+      - "5000:8080"
+    depends_on:
+      - meetme-db
+    networks:
+      - meetme-network
+    volumes:
+      - .:/src
+      - /src/src/MeetMe.API/bin
+      - /src/src/MeetMe.API/obj
+    working_dir: /src
+    command: dotnet watch run --project src/MeetMe.API/MeetMe.API.csproj --urls http://+:8080
+    restart: unless-stopped
+
+  # Angular Frontend (Development mode with hot reload)
+  meetme-client:
+    image: node:20-alpine
+    container_name: meetme-frontend-dev
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:4200"
+    depends_on:
+      - meetme-api
+    networks:
+      - meetme-network
+    volumes:
+      - ./src/MeetMe.Client:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm start -- --host 0.0.0.0 --port 4200"
+    restart: unless-stopped
+
+networks:
+  meetme-network:
+    driver: bridge
+
+volumes:
+  meetme_db_data_dev:

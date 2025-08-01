@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  meetme-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: meetme-database
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - meetme_db_data:/var/opt/mssql
+    networks:
+      - meetme-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # .NET API Backend
+  meetme-api:
+    build:
+      context: .
+      dockerfile: src/MeetMe.API/Dockerfile
+    container_name: meetme-backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=meetme-db;Database=MeetMeDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;MultipleActiveResultSets=true
+    ports:
+      - "5000:8080"
+    depends_on:
+      meetme-db:
+        condition: service_healthy
+    networks:
+      - meetme-network
+    volumes:
+      - ./src:/app/src:ro
+    restart: unless-stopped
+
+  # Angular Frontend
+  meetme-client:
+    build:
+      context: ./src/MeetMe.Client
+      dockerfile: Dockerfile
+    container_name: meetme-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - meetme-api
+    networks:
+      - meetme-network
+    restart: unless-stopped
+
+networks:
+  meetme-network:
+    driver: bridge
+
+volumes:
+  meetme_db_data:
