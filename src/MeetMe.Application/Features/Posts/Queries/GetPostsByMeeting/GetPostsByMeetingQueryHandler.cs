@@ -26,25 +26,13 @@ public class GetPostsByMeetingQueryHandler : IRequestHandler<GetPostsByMeetingQu
                 cancellationToken,
                 p => p.Author, p => p.Meeting, p => p.Comments);
 
-            var postDtos = posts.Select(post => new PostDto
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Content = post.Content,
-                AuthorId = post.AuthorId,
-                AuthorName = post.Author.FullName,
-                MeetingId = post.MeetingId,
-                IsActive = post.IsActive,
-                CommentCount = post.Comments.Count,
-                CreatedDate = post.CreatedDate,
-                LastModifiedDate = post.LastModifiedDate
-            }).OrderByDescending(p => p.CreatedDate).ToList();
+            var postDtos = _mapper.Map<List<PostDto>>(posts.OrderByDescending(p => p.CreatedDate));
 
             return Result.Success(postDtos);
         }
         catch (Exception ex)
         {
-            return Result.Failure<List<PostDto>>($"Error retrieving posts: {ex.Message}");
+            return Result.Failure<List<PostDto>>($"Failed to get posts: {ex.Message}");
         }
     }
 }

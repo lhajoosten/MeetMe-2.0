@@ -29,25 +29,13 @@ public class GetPostByIdQueryHandler : IRequestHandler<GetPostByIdQuery, Result<
                 return Result.Failure<PostDto>("Post not found");
             }
 
-            var postDto = new PostDto
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Content = post.Content,
-                AuthorId = post.AuthorId,
-                AuthorName = post.Author.FullName,
-                MeetingId = post.MeetingId,
-                IsActive = post.IsActive,
-                CommentCount = post.Comments.Count,
-                CreatedDate = post.CreatedDate,
-                LastModifiedDate = post.LastModifiedDate
-            };
+            var postDto = _mapper.Map<PostDto>(post);
 
             return Result.Success(postDto);
         }
         catch (Exception ex)
         {
-            return Result.Failure<PostDto>($"Error retrieving post: {ex.Message}");
+            return Result.Failure<PostDto>($"Failed to get post: {ex.Message}");
         }
     }
 }
