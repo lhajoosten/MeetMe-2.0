@@ -1,4 +1,5 @@
 using MeetMe.Domain.Entities;
+using MeetMe.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,14 +20,13 @@ namespace MeetMe.Infrastructure.Data.Configurations
             builder.Property(m => m.Description)
                 .HasMaxLength(2000);
 
-            // Value Object mapping for Location
-            builder.OwnsOne(m => m.Location, location =>
-            {
-                location.Property(l => l.Value)
-                    .HasColumnName("Location")
-                    .HasMaxLength(500)
-                    .IsRequired();
-            });
+            // Value Object - Location - using property conversion
+            builder.Property(m => m.Location)
+                .HasConversion(
+                    location => location.Value,
+                    value => Location.Create(value))
+                .HasMaxLength(500)
+                .IsRequired();
 
             // Value Object mapping for MeetingDateTime
             builder.OwnsOne(m => m.MeetingDateTime, dateTime =>
@@ -39,6 +39,11 @@ namespace MeetMe.Infrastructure.Data.Configurations
                     .HasColumnName("EndDateTime")
                     .IsRequired();
             });
+
+            builder.Property(m => m.IsActive)
+                .IsRequired();
+
+            builder.Property(m => m.MaxAttendees);
 
             // Relationships
             builder.HasOne(m => m.Creator)
@@ -57,7 +62,7 @@ namespace MeetMe.Infrastructure.Data.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Indexes
-            builder.HasIndex(m => m.IsActive);
+            builder.HasIndex(m => m.Title);
             builder.HasIndex(m => m.CreatorId);
             builder.HasIndex(m => m.CreatedDate);
 

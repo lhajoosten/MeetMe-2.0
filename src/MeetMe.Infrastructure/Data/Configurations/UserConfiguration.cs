@@ -1,4 +1,5 @@
 using MeetMe.Domain.Entities;
+using MeetMe.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,17 +25,20 @@ namespace MeetMe.Infrastructure.Data.Configurations
             builder.Property(u => u.ProfilePictureUrl)
                 .HasMaxLength(2000);
 
-            // Value Object - Email
-            builder.OwnsOne(u => u.Email, email =>
-            {
-                email.Property(e => e.Value)
-                    .HasColumnName("Email")
-                    .IsRequired()
-                    .HasMaxLength(320);
+            builder.Property(u => u.PasswordHash)
+                .IsRequired();
 
-                email.HasIndex(e => e.Value)
-                    .IsUnique();
-            });
+            // Value Object - Email - using property conversion
+            builder.Property(u => u.Email)
+                .HasConversion(
+                    email => email.Value,
+                    value => Email.Create(value))
+                .IsRequired()
+                .HasMaxLength(320);
+
+            // Create unique index on the email property
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
 
             // Relationships
             builder.HasOne(u => u.Identity)

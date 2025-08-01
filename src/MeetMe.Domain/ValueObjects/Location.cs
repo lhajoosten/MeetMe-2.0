@@ -1,20 +1,30 @@
 ﻿using Ardalis.GuardClauses;
+using MeetMe.Domain.Common;
 
 namespace MeetMe.Domain.ValueObjects
 {
-    public record Location
+    public class Location : ValueObject
     {
         public string Value { get; }
 
+        private const int MaxLength = 500;
+
         private Location(string value)
         {
-            Guard.Against.NullOrEmpty(value, nameof(value), "Location cannot be null or empty.");
             Value = value;
         }
 
-        public static Location Create(string location)
+        public static Location Create(string value)
         {
-            return new Location(location);
+            Guard.Against.NullOrWhiteSpace(value, nameof(value));
+            Guard.Against.OutOfRange(value.Length, nameof(value), 1, MaxLength);
+
+            return new Location(value.Trim());
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
         }
 
         public override string ToString() => Value;

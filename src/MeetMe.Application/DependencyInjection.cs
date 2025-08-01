@@ -19,7 +19,10 @@ namespace MeetMe.Application
             services.AddValidatorsFromAssembly(assembly);
 
             // Add AutoMapper
-            services.AddAutoMapper(assembly);
+            services.AddAutoMapper(cfg => 
+            {
+                // Add profiles from this assembly
+            }, Assembly.GetExecutingAssembly());
 
             // Add MediatR Pipeline Behaviors
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

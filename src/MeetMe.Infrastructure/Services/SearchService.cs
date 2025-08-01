@@ -33,6 +33,21 @@ public class SearchService : ISearchService
 
         filters ??= new SearchFilters();
 
+        // Return empty results for empty queries
+        if (!searchTerms.Any())
+        {
+            return new SearchResultsDto
+            {
+                Results = new List<SearchResultDto>(),
+                TotalCount = 0,
+                Page = page,
+                PageSize = pageSize,
+                TypeCounts = new Dictionary<string, int>(),
+                Query = query ?? string.Empty,
+                SearchDuration = DateTime.UtcNow - startTime
+            };
+        }
+
         // Search across all content types if no specific types are filtered
         var searchTypes = filters.Types.Any() ? filters.Types : new List<string> { "Meeting", "Post", "Comment", "User" };
 
@@ -101,6 +116,24 @@ public class SearchService : ISearchService
             var searchTerms = ParseSearchQuery(query);
             filters ??= new SearchFilters();
 
+            // Return empty results for empty queries
+            if (!searchTerms.Any())
+            {
+                var emptyTracking = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await TrackSearchQueryAsync(query, "Meeting", null, 0, DateTime.UtcNow - startTime, cancellationToken);
+                    }
+                    catch
+                    {
+                        // Ignore tracking errors
+                    }
+                }, cancellationToken);
+
+                return Result.Success(new List<MeetingSearchResultDto>());
+            }
+
             var meetingsQuery = _context.Meetings
                 .Include(m => m.Creator)
                 .Include(m => m.Attendees)
@@ -113,14 +146,13 @@ public class SearchService : ISearchService
             if (filters.ToDate.HasValue)
                 meetingsQuery = meetingsQuery.Where(m => m.MeetingDateTime.StartDateTime <= filters.ToDate.Value);
 
-            // Apply text search
+            // Apply text search using simple Contains to avoid EF translation issues
             if (searchTerms.Any())
             {
                 meetingsQuery = meetingsQuery.Where(m =>
                     searchTerms.Any(term =>
-                        EF.Functions.Like(m.Title, $"%{term}%") ||
-                        EF.Functions.Like(m.Description, $"%{term}%") ||
-                        EF.Functions.Like(m.Location.Value, $"%{term}%")));
+                        m.Title.Contains(term) ||
+                        m.Description.Contains(term)));
             }
 
             // Apply sorting
@@ -139,6 +171,17 @@ public class SearchService : ISearchService
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
+
+            // Apply client-side location filtering if search terms exist
+            if (searchTerms.Any())
+            {
+                meetings = meetings.Where(m =>
+                    searchTerms.Any(term =>
+                        m.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        m.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        m.Location.Value.Contains(term, StringComparison.OrdinalIgnoreCase))
+                ).ToList();
+            }
 
             var meetingDtos = meetings.Select(m => new MeetingSearchResultDto
             {
@@ -184,6 +227,7 @@ public class SearchService : ISearchService
         int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
+        var startTime = DateTime.UtcNow;
         try
         {
             var searchTerms = ParseSearchQuery(query);
@@ -205,10 +249,11 @@ public class SearchService : ISearchService
             // Apply text search
             if (searchTerms.Any())
             {
+                // Use simple Contains to avoid EF translation issues
                 postsQuery = postsQuery.Where(p =>
                     searchTerms.Any(term =>
-                        EF.Functions.Like(p.Title, $"%{term}%") ||
-                        EF.Functions.Like(p.Content, $"%{term}%")));
+                        p.Title.Contains(term) ||
+                        p.Content.Contains(term)));
             }
 
             // Apply sorting
@@ -240,6 +285,21 @@ public class SearchService : ISearchService
                 IsActive = p.IsActive,
                 CreatedDate = p.CreatedDate
             }).ToList();
+
+            var searchDuration = DateTime.UtcNow - startTime;
+
+            // Track the search query for analytics (fire and forget)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await TrackSearchQueryAsync(query, "Post", null, postDtos.Count, searchDuration, cancellationToken);
+                }
+                catch
+                {
+                    // Ignore tracking errors
+                }
+            }, cancellationToken);
 
             return Result.Success(postDtos);
         }
@@ -276,9 +336,10 @@ public class SearchService : ISearchService
             // Apply text search
             if (searchTerms.Any())
             {
+                // Use simple Contains to avoid EF translation issues
                 commentsQuery = commentsQuery.Where(c =>
                     searchTerms.Any(term =>
-                        EF.Functions.Like(c.Content, $"%{term}%")));
+                        c.Content.Contains(term)));
             }
 
             // Apply sorting
@@ -323,6 +384,7 @@ public class SearchService : ISearchService
         int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
+        var startTime = DateTime.UtcNow;
         try
         {
             var searchTerms = ParseSearchQuery(query);
@@ -341,11 +403,12 @@ public class SearchService : ISearchService
             // Apply text search
             if (searchTerms.Any())
             {
+                // Avoid EF translation issues with value objects by using simple Contains
                 usersQuery = usersQuery.Where(u =>
                     searchTerms.Any(term =>
-                        EF.Functions.Like(u.FirstName, $"%{term}%") ||
-                        EF.Functions.Like(u.LastName, $"%{term}%") ||
-                        EF.Functions.Like(u.Email.Value, $"%{term}%")));
+                        u.FirstName.Contains(term) ||
+                        u.LastName.Contains(term)));
+                // Note: Skipping Email search for now due to value object complexity
             }
 
             // Apply sorting
@@ -375,6 +438,21 @@ public class SearchService : ISearchService
                 IsActive = u.IsActive
             }).ToList();
 
+            var searchDuration = DateTime.UtcNow - startTime;
+
+            // Track the search query for analytics (fire and forget)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await TrackSearchQueryAsync(query, "User", null, userDtos.Count, searchDuration, cancellationToken);
+                }
+                catch
+                {
+                    // Ignore tracking errors
+                }
+            }, cancellationToken);
+
             return Result.Success(userDtos);
         }
         catch (Exception ex)
@@ -394,7 +472,7 @@ public class SearchService : ISearchService
 
             // Get meeting titles
             var meetingTitles = await _context.Meetings
-                .Where(m => m.IsActive && EF.Functions.Like(m.Title, $"%{query}%"))
+                .Where(m => m.IsActive && m.Title.Contains(query))
                 .Select(m => m.Title)
                 .Take(maxSuggestions / 4)
                 .ToListAsync(cancellationToken);
@@ -408,7 +486,7 @@ public class SearchService : ISearchService
 
             // Get post titles
             var postTitles = await _context.Posts
-                .Where(p => p.IsActive && EF.Functions.Like(p.Title, $"%{query}%"))
+                .Where(p => p.IsActive && p.Title.Contains(query))
                 .Select(p => p.Title)
                 .Take(maxSuggestions / 4)
                 .ToListAsync(cancellationToken);
@@ -423,8 +501,8 @@ public class SearchService : ISearchService
             // Get user names
             var userNames = await _context.Users
                 .Where(u => u.IsActive && (
-                    EF.Functions.Like(u.FirstName, $"%{query}%") ||
-                    EF.Functions.Like(u.LastName, $"%{query}%")))
+                    u.FirstName.Contains(query) ||
+                    u.LastName.Contains(query)))
                 .Select(u => $"{u.FirstName} {u.LastName}")
                 .Take(maxSuggestions / 4)
                 .ToListAsync(cancellationToken);
@@ -436,13 +514,17 @@ public class SearchService : ISearchService
                 Count = 1
             }));
 
-            // Get locations
-            var locations = await _context.Meetings
-                .Where(m => m.IsActive && EF.Functions.Like(m.Location.Value, $"%{query}%"))
+            // Get locations - simplified to avoid value object translation issues
+            var meetings = await _context.Meetings
+                .Where(m => m.IsActive)
+                .ToListAsync(cancellationToken);
+                
+            var locations = meetings
+                .Where(m => m.Location.Value.Contains(query, StringComparison.OrdinalIgnoreCase))
                 .Select(m => m.Location.Value)
                 .Distinct()
                 .Take(maxSuggestions / 4)
-                .ToListAsync(cancellationToken);
+                .ToList();
 
             suggestions.AddRange(locations.Select(location => new SearchSuggestionDto
             {
@@ -468,18 +550,24 @@ public class SearchService : ISearchService
             // Get popular search terms from actual search queries in the last 30 days
             var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
             
-            var popularTerms = await _context.SearchQueries
+            // Get search queries first, then process in memory to avoid EF translation issues
+            var searchQueries = await _context.SearchQueries
                 .Where(sq => sq.SearchedAt >= thirtyDaysAgo)
                 .Where(sq => !string.IsNullOrWhiteSpace(sq.Query))
                 .Where(sq => sq.Query.Length >= 2) // Filter out very short queries
-                .SelectMany(sq => sq.Query.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .Select(sq => sq.Query)
+                .ToListAsync(cancellationToken);
+                
+            // Process terms in memory to avoid EF translation issues
+            var popularTerms = searchQueries
+                .SelectMany(query => query.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 .Where(term => term.Length >= 2)
                 .Where(term => !IsCommonWord(term)) // Filter out common words
                 .GroupBy(term => term)
                 .OrderByDescending(g => g.Count())
                 .Take(count)
                 .Select(g => g.Key)
-                .ToListAsync(cancellationToken);
+                .ToList();
 
             // If we don't have enough data yet, supplement with default terms
             if (popularTerms.Count < count)
@@ -562,15 +650,40 @@ public class SearchService : ISearchService
         SearchFilters filters,
         CancellationToken cancellationToken)
     {
-        var meetings = await _context.Meetings
+        // Simplified EF query - avoid mixing value objects in LINQ expressions
+        var query = _context.Meetings
             .Include(m => m.Creator)
-            .Where(m => filters.ActiveOnly ? m.IsActive : true)
-            .Where(m => searchTerms.Any(term =>
-                EF.Functions.Like(m.Title, $"%{term}%") ||
-                EF.Functions.Like(m.Description, $"%{term}%")))
-            .ToListAsync(cancellationToken);
+            .Where(m => filters.ActiveOnly ? m.IsActive : true);
 
-        return meetings.Select(m => new SearchResultDto
+        // Apply basic filtering that EF can handle
+        if (searchTerms.Any())
+        {
+            // Use simple string contains for now to avoid EF translation issues
+            query = query.Where(m => 
+                searchTerms.Any(term => 
+                    m.Title.Contains(term) || 
+                    m.Description.Contains(term)));
+        }
+        
+        var allMeetings = await query.ToListAsync(cancellationToken);
+
+        // Apply more complex filtering on the client side
+        var filteredMeetings = allMeetings.AsEnumerable();
+        
+        // Apply date range filtering if specified
+        if (filters.FromDate.HasValue)
+        {
+            filteredMeetings = filteredMeetings.Where(m => 
+                m.MeetingDateTime.StartDateTime >= filters.FromDate.Value);
+        }
+
+        if (filters.ToDate.HasValue)
+        {
+            filteredMeetings = filteredMeetings.Where(m => 
+                m.MeetingDateTime.EndDateTime <= filters.ToDate.Value);
+        }
+
+        return filteredMeetings.Select(m => new SearchResultDto
         {
             Id = m.Id.ToString(),
             Title = m.Title,
@@ -593,14 +706,22 @@ public class SearchService : ISearchService
         SearchFilters filters,
         CancellationToken cancellationToken)
     {
-        var posts = await _context.Posts
+        // Simplified EF query to avoid translation issues
+        var query = _context.Posts
             .Include(p => p.Author)
             .Include(p => p.Meeting)
-            .Where(p => filters.ActiveOnly ? p.IsActive : true)
-            .Where(p => searchTerms.Any(term =>
-                EF.Functions.Like(p.Title, $"%{term}%") ||
-                EF.Functions.Like(p.Content, $"%{term}%")))
-            .ToListAsync(cancellationToken);
+            .Where(p => filters.ActiveOnly ? p.IsActive : true);
+
+        // Apply basic filtering that EF can handle
+        if (searchTerms.Any())
+        {
+            query = query.Where(p => 
+                searchTerms.Any(term => 
+                    p.Title.Contains(term) || 
+                    p.Content.Contains(term)));
+        }
+        
+        var posts = await query.ToListAsync(cancellationToken);
 
         return posts.Select(p => new SearchResultDto
         {
@@ -625,13 +746,21 @@ public class SearchService : ISearchService
         SearchFilters filters,
         CancellationToken cancellationToken)
     {
-        var comments = await _context.Comments
+        // Simplified EF query to avoid translation issues
+        var query = _context.Comments
             .Include(c => c.Author)
             .Include(c => c.Post)
-            .Where(c => filters.ActiveOnly ? c.IsActive : true)
-            .Where(c => searchTerms.Any(term =>
-                EF.Functions.Like(c.Content, $"%{term}%")))
-            .ToListAsync(cancellationToken);
+            .Where(c => filters.ActiveOnly ? c.IsActive : true);
+
+        // Apply basic filtering that EF can handle
+        if (searchTerms.Any())
+        {
+            query = query.Where(c => 
+                searchTerms.Any(term => 
+                    c.Content.Contains(term)));
+        }
+        
+        var comments = await query.ToListAsync(cancellationToken);
 
         return comments.Select(c => new SearchResultDto
         {
@@ -657,13 +786,21 @@ public class SearchService : ISearchService
         SearchFilters filters,
         CancellationToken cancellationToken)
     {
-        var users = await _context.Users
-            .Where(u => filters.ActiveOnly ? u.IsActive : true)
-            .Where(u => searchTerms.Any(term =>
-                EF.Functions.Like(u.FirstName, $"%{term}%") ||
-                EF.Functions.Like(u.LastName, $"%{term}%") ||
-                EF.Functions.Like(u.Email.Value, $"%{term}%")))
-            .ToListAsync(cancellationToken);
+        // Simplified EF query to avoid translation issues
+        var query = _context.Users
+            .Where(u => filters.ActiveOnly ? u.IsActive : true);
+
+        // Apply basic filtering that EF can handle
+        if (searchTerms.Any())
+        {
+            query = query.Where(u => 
+                searchTerms.Any(term => 
+                    u.FirstName.Contains(term) || 
+                    u.LastName.Contains(term)));
+            // Note: Skipping Email search for now due to value object complexity
+        }
+        
+        var users = await query.ToListAsync(cancellationToken);
 
         return users.Select(u => new SearchResultDto
         {

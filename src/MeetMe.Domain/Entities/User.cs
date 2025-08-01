@@ -94,6 +94,7 @@ namespace MeetMe.Domain.Entities
             Guard.Against.Null(role, nameof(role), "Role cannot be null when setting primary role.");
          
             Role = role;
+            RoleId = role.Id;
             LastModifiedDate = DateTime.Now;
         }
 
