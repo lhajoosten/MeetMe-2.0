@@ -28,8 +28,11 @@ namespace MeetMe.Domain.Entities
             {
                 Content = content,
                 Author = author,
+                AuthorId = author.Id,
                 Post = post,
+                PostId = post.Id,
                 ParentComment = parentComment,
+                ParentCommentId = parentComment?.Id
             };
 
             comment.AddDomainEvent(new CommentCreatedEvent(comment));

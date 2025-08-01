@@ -206,19 +206,18 @@ public class MeetingTests
     }
 
     [Fact]
-    public void IsUpcoming_WithPastStartTime_ShouldReturnFalse()
+    public void IsUpcoming_WithPastStartTime_ShouldNotBeAllowedToCreate()
     {
         // Arrange
         var creator = GetTestUser();
         var pastDateTime = DateTime.UtcNow.AddDays(-1);
-        var meeting = Meeting.Create("Test Meeting", "Test Description", "Conference Room A", 
+
+        // Act & Assert - Should not allow creating meetings in the past
+        var action = () => Meeting.Create("Test Meeting", "Test Description", "Conference Room A", 
             pastDateTime, pastDateTime.AddHours(1), creator);
 
-        // Act
-        var result = meeting.IsUpcoming();
-
-        // Assert
-        result.Should().BeFalse();
+        action.Should().Throw<ArgumentException>()
+            .WithMessage("Meeting cannot be scheduled in the past");
     }
 
     [Fact]

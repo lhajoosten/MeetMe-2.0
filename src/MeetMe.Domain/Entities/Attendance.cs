@@ -24,7 +24,9 @@ namespace MeetMe.Domain.Entities
             var attendance = new Attendance
             {
                 User = user,
+                UserId = user.Id,
                 Meeting = meeting,
+                MeetingId = meeting.Id,
                 Status = AttendanceStatus.Confirmed,
                 JoinedAt = DateTime.Now
             };
@@ -46,6 +48,8 @@ namespace MeetMe.Domain.Entities
 
         public void Leave(User user)
         {
+            Guard.Against.Null(user, nameof(user), "User cannot be null when leaving a meeting.");
+
             IsActive = false;
             LastModifiedDate = DateTime.Now;
             LastModifiedByUserId = user.Id.ToString();

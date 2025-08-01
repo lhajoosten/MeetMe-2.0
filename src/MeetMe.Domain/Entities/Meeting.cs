@@ -29,8 +29,8 @@ namespace MeetMe.Domain.Entities
             User creator,
             int? maxAttendees = null)
         {
-            Guard.Against.NullOrEmpty(title, nameof(title), "Title cannot be null or empty.");
-            Guard.Against.NullOrEmpty(description, nameof(description), "Description cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(title, nameof(title), "Title cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(description, nameof(description), "Description cannot be null or empty.");
             Guard.Against.Null(creator, nameof(creator), "Creator cannot be null when creating a meeting.");
 
             var meeting = new Meeting

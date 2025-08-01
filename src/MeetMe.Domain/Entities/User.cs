@@ -26,9 +26,9 @@ namespace MeetMe.Domain.Entities
 
         public static User Create(string firstName, string lastName, string email, string? bio = null)
         {
-            Guard.Against.NullOrEmpty(firstName, nameof(firstName), "First name cannot be null or empty.");
-            Guard.Against.NullOrEmpty(lastName, nameof(lastName), "Last name cannot be null or empty.");
-            Guard.Against.NullOrEmpty(email, nameof(email), "Email cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(firstName, nameof(firstName), "First name cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(lastName, nameof(lastName), "Last name cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(email, nameof(email), "Email cannot be null or empty.");
 
             return new User
             {
@@ -42,10 +42,10 @@ namespace MeetMe.Domain.Entities
 
         public static User Create(string firstName, string lastName, Email email, string passwordHash, string? bio = null)
         {
-            Guard.Against.NullOrEmpty(firstName, nameof(firstName), "First name cannot be null or empty.");
-            Guard.Against.NullOrEmpty(lastName, nameof(lastName), "Last name cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(firstName, nameof(firstName), "First name cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(lastName, nameof(lastName), "Last name cannot be null or empty.");
             Guard.Against.Null(email, nameof(email), "Email cannot be null.");
-            Guard.Against.NullOrEmpty(passwordHash, nameof(passwordHash), "Password hash cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(passwordHash, nameof(passwordHash), "Password hash cannot be null or empty.");
 
             return new User
             {
@@ -83,7 +83,7 @@ namespace MeetMe.Domain.Entities
 
         public void UpdateEmail(string email)
         {
-            Guard.Against.NullOrEmpty(email, nameof(email), "Email cannot be null or empty.");
+            Guard.Against.NullOrWhiteSpace(email, nameof(email), "Email cannot be null or empty.");
 
             Email = Email.Create(email);
             LastModifiedDate = DateTime.Now;

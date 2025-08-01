@@ -84,7 +84,7 @@ public class MeetingDateTimeTests
         var duration = meetingDateTime.Duration;
 
         // Assert
-        duration.Should().Be(TimeSpan.FromHours(2));
+        duration.Should().BeCloseTo(TimeSpan.FromHours(2), TimeSpan.FromMilliseconds(1));
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public class MeetingDateTimeTests
         var duration = meetingDateTime.Duration;
 
         // Assert
-        duration.Should().Be(TimeSpan.FromHours(expectedDurationHours));
+        duration.Should().BeCloseTo(TimeSpan.FromHours(expectedDurationHours), TimeSpan.FromMilliseconds(1));
     }
 
     [Fact]

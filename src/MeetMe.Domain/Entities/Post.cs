@@ -28,8 +28,10 @@ namespace MeetMe.Domain.Entities
             {
                 Title = title,
                 Content = content,
-                Author= author,
-                Meeting = meeting
+                Author = author,
+                AuthorId = author.Id,
+                Meeting = meeting,
+                MeetingId = meeting.Id
             };
 
             post.AddDomainEvent(new PostCreatedEvent(post));
