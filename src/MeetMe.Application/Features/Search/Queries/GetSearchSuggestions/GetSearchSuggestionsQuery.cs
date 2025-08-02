@@ -1,5 +1,6 @@
 using MeetMe.Application.Common.Models;
 using MediatR;
+using MeetMe.Application.Features.Search.DTOs;
 
 namespace MeetMe.Application.Features.Search.Queries.GetSearchSuggestions;
 

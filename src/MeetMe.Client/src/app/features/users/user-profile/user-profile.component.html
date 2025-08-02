@@ -1,7 +1,7 @@
 <div class="profile-container">
   <div class="profile-header">
     <button class="btn-back" routerLink="/meetings">
-      <i class="icon-arrow-left"></i> Back to Meetings
+      <app-icon name="arrow-left"></app-icon> Back to Meetings
     </button>
     <h1>User Profile</h1>
     <p>Manage your account information</p>
@@ -12,12 +12,12 @@
       <div class="profile-avatar-section">
         <div class="avatar-container">
           <img
-            [src]="user.profilePictureUrl || '/assets/default-avatar.png'"
+            [src]="user.profilePictureUrl || '/assets/default-avatar.svg'"
             [alt]="user.firstName + ' ' + user.lastName"
             class="profile-avatar"
           />
           <button class="avatar-upload-btn" (click)="uploadAvatar()">
-            <i class="icon-camera"></i>
+            <app-icon name="camera"></app-icon>
           </button>
         </div>
         <div class="profile-info">

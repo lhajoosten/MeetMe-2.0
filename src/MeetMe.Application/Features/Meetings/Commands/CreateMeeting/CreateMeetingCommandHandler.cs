@@ -5,24 +5,24 @@ using MeetMe.Domain.Entities;
 
 namespace MeetMe.Application.Features.Meetings.Commands.CreateMeeting
 {
-    public class CreateMeetingCommandHandler : ICommandHandler<CreateMeetingCommand, Guid>
+    public class CreateMeetingCommandHandler : ICommandHandler<CreateMeetingCommand, int>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IQueryRepository<User, Guid> _userQueryRepository;
+        private readonly IQueryRepository<User, int> _userQueryRepository;
 
-        public CreateMeetingCommandHandler(IUnitOfWork unitOfWork, IQueryRepository<User, Guid> userQueryRepository)
+        public CreateMeetingCommandHandler(IUnitOfWork unitOfWork, IQueryRepository<User, int> userQueryRepository)
         {
             _unitOfWork = unitOfWork;
             _userQueryRepository = userQueryRepository;
         }
 
-        public async Task<Result<Guid>> Handle(CreateMeetingCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateMeetingCommand request, CancellationToken cancellationToken)
         {
             // Get the creator user
             var creator = await _userQueryRepository.GetByIdAsync(request.CreatorId, cancellationToken);
             if (creator == null)
             {
-                return Result.Failure<Guid>("Creator not found");
+                return Result.Failure<int>("Creator not found");
             }
 
             // Create the meeting using domain factory method
@@ -33,14 +33,15 @@ namespace MeetMe.Application.Features.Meetings.Commands.CreateMeeting
                 request.StartDateTime,
                 request.EndDateTime,
                 creator,
-                request.MaxAttendees);
+                request.MaxAttendees,
+                request.IsPublic);
 
             // Add to repository
-            var meetingRepository = _unitOfWork.CommandRepository<Meeting, Guid>();
-            await meetingRepository.AddAsync(meeting, request.CreatorId.ToString(), cancellationToken);
+            var meetingRepository = _unitOfWork.CommandRepository<Meeting, int>();
+            await meetingRepository.AddAsync(meeting, request.CreatorId, cancellationToken);
 
             // Save changes
-            await _unitOfWork.SaveChangesAsync(request.CreatorId.ToString(), cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.CreatorId, cancellationToken);
 
             return Result.Success(meeting.Id);
         }

@@ -124,7 +124,7 @@ namespace MeetMe.API
         private static async Task SeedDefaultRolesAsync(WebApplication app)
         {
             using var scope = app.Services.CreateScope();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             
             try
             {
@@ -135,20 +135,13 @@ namespace MeetMe.API
                 
                 foreach (var roleName in defaultRoles)
                 {
-                    if (!await roleManager.RoleExistsAsync(roleName))
+                    if (!await dbContext.Roles.AnyAsync(r => r.Name == roleName))
                     {
                         var role = new Role { Name = roleName };
-                        var result = await roleManager.CreateAsync(role);
+                        dbContext.Roles.Add(role);
+                        await dbContext.SaveChangesAsync();
                         
-                        if (result.Succeeded)
-                        {
-                            Log.Information("✅ Created role: {RoleName}", roleName);
-                        }
-                        else
-                        {
-                            Log.Warning("⚠️ Failed to create role {RoleName}: {Errors}", 
-                                roleName, string.Join(", ", result.Errors.Select(e => e.Description)));
-                        }
+                        Log.Information("✅ Created role: {RoleName}", roleName);
                     }
                     else
                     {

@@ -1,20 +1,24 @@
-using MediatR;
+using MeetMe.Application.Common.Abstraction;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Users.DTOs;
 using MeetMe.Domain.Entities;
+using AutoMapper;
 
 namespace MeetMe.Application.Features.Users.Queries.GetUser;
 
-public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
+public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, UserDetailDto>
 {
-    private readonly IQueryRepository<User, Guid> _userRepository;
+    private readonly IQueryRepository<User, int> _userRepository;
+    private readonly IMapper _mapper;
 
-    public GetUserByIdQueryHandler(IQueryRepository<User, Guid> userRepository)
+    public GetUserByIdQueryHandler(IQueryRepository<User, int> userRepository, IMapper mapper)
     {
         _userRepository = userRepository;
+        _mapper = mapper;
     }
 
-    public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserDetailDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -22,27 +26,16 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<
             
             if (user == null)
             {
-                return Result.Failure<UserDto>("User not found");
+                return Result.Failure<UserDetailDto>("User not found");
             }
 
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                FullName = $"{user.FirstName} {user.LastName}",
-                Email = user.Email.Value,
-                Bio = user.Bio,
-                ProfilePictureUrl = user.ProfilePictureUrl,
-                IsActive = user.IsActive,
-                CreatedDate = user.CreatedDate
-            };
+            var userDetailDto = _mapper.Map<UserDetailDto>(user);
 
-            return Result.Success(userDto);
+            return Result.Success(userDetailDto);
         }
         catch (Exception ex)
         {
-            return Result.Failure<UserDto>($"Failed to get user: {ex.Message}");
+            return Result.Failure<UserDetailDto>($"Failed to get user: {ex.Message}");
         }
     }
 }

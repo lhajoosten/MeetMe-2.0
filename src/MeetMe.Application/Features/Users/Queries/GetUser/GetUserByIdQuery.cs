@@ -1,13 +1,13 @@
-using MediatR;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Common.Abstraction;
+using MeetMe.Application.Features.Users.DTOs;
 
 namespace MeetMe.Application.Features.Users.Queries.GetUser;
 
-public record GetUserByIdQuery : IRequest<Result<UserDto>>
+public record GetUserByIdQuery : IQuery<UserDetailDto>
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 
-    public GetUserByIdQuery(Guid id)
+    public GetUserByIdQuery(int id)
     {
         Id = id;
     }

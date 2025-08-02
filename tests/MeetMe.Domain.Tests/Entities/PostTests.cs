@@ -138,7 +138,7 @@ public class PostTests
         post.Title.Should().Be(newTitle);
         post.Content.Should().Be(newContent);
         post.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        post.LastModifiedByUserId.Should().Be(updatingUser.Id.ToString());
+        post.LastModifiedByUserId.Should().Be(updatingUser.Id);
     }
 
     [Theory]
@@ -226,7 +226,7 @@ public class PostTests
         // Assert
         post.IsActive.Should().BeFalse();
         post.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        post.LastModifiedByUserId.Should().Be(deactivatingUser.Id.ToString());
+        post.LastModifiedByUserId.Should().Be(deactivatingUser.Id);
     }
 
     [Fact]

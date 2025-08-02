@@ -60,6 +60,11 @@ export class AuthService {
 		return this.isAuthenticatedSubject.value;
 	}
 
+	updateCurrentUser(user: User): void {
+		localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+		this.currentUserSubject.next(user);
+	}
+
 	private handleAuthSuccess(response: AuthResponse): void {
 		localStorage.setItem(this.TOKEN_KEY, response.token);
 		localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));

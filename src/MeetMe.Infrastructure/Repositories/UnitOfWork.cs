@@ -94,7 +94,7 @@ namespace MeetMe.Infrastructure.Repositories
             _transaction = null;
         }
 
-        public async Task<int> SaveChangesAsync(string userId, CancellationToken cancellationToken = default)
+        public async Task<int> SaveChangesAsync(int userId, CancellationToken cancellationToken = default)
         {
             // Update audit fields before saving
             UpdateAuditFields(userId);
@@ -102,7 +102,7 @@ namespace MeetMe.Infrastructure.Repositories
             return await _context.SaveChangesAsync(cancellationToken);
         }
 
-        private void UpdateAuditFields(string userId)
+        private void UpdateAuditFields(int userId)
         {
             var entries = _context.ChangeTracker.Entries<BaseEntity>()
                 .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);

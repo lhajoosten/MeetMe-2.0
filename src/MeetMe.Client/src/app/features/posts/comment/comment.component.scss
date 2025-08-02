@@ -1,34 +1,14 @@
 .comment-card {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
   padding: 16px;
-  margin-left: 20px;
-  position: relative;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  background: #f8f9fa;
+  margin-bottom: 12px;
+  transition: background-color 0.2s ease;
 }
 
-.comment-card::before {
-  content: '';
-  position: absolute;
-  left: -8px;
-  top: 16px;
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-right: 8px solid #e9ecef;
-}
-
-.comment-card::after {
-  content: '';
-  position: absolute;
-  left: -7px;
-  top: 16px;
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-right: 8px solid #f8f9fa;
+.comment-card:hover {
+  background: #f0f1f3;
 }
 
 .comment-header {
@@ -38,28 +18,8 @@
   margin-bottom: 12px;
 }
 
-.author-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.author-avatar {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 12px;
-  text-transform: uppercase;
-}
-
-.author-details h6 {
-  margin: 0;
+.comment-author h4 {
+  margin: 0 0 4px 0;
   color: #333;
   font-weight: 600;
   font-size: 14px;
@@ -72,97 +32,14 @@
 
 .comment-actions {
   display: flex;
-  gap: 6px;
-}
-
-.btn-action {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 4px;
-  background: #e9ecef;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  font-size: 12px;
-}
-
-.btn-action:hover {
-  background: #dee2e6;
-  transform: translateY(-1px);
-}
-
-.btn-action.danger:hover {
-  background: #f8d7da;
-  color: #e74c3c;
+  gap: 8px;
 }
 
 .comment-content p {
   margin: 0;
-  color: #333;
   line-height: 1.5;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  color: #333;
   font-size: 14px;
-}
-
-.comment-edit {
-  margin-bottom: 8px;
-}
-
-.form-group {
-  margin-bottom: 12px;
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid #dee2e6;
-  border-radius: 6px;
-  font-size: 14px;
-  line-height: 1.4;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
-  resize: vertical;
-  font-family: inherit;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.form-control.error {
-  border-color: #e74c3c;
-}
-
-.form-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 6px;
-}
-
-.char-counter {
-  font-size: 12px;
-  color: #666;
-}
-
-.char-counter.warning {
-  color: #f39c12;
-  font-weight: 600;
-}
-
-.char-counter.danger {
-  color: #e74c3c;
-  font-weight: 600;
-}
-
-.edit-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
 }
 
 .btn {
@@ -175,69 +52,29 @@
   transition: all 0.3s ease;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.btn-small {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.btn-danger {
+  background: #e74c3c;
   color: white;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+.btn-danger:hover {
+  background: #c0392b;
   transform: translateY(-1px);
 }
 
-.btn-secondary {
-  background: #e9ecef;
-  color: #666;
-  border: 1px solid #dee2e6;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #dee2e6;
-  color: #333;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.error-message {
-  margin-top: 8px;
-  text-align: center;
-}
-
-.error-message small {
-  color: #e74c3c;
-  font-size: 12px;
-}
-
 @media (max-width: 768px) {
-  .comment-card {
-    margin-left: 10px;
-    padding: 12px;
-  }
-
-  .comment-card::before,
-  .comment-card::after {
-    left: -6px;
-    border-right-width: 6px;
-  }
-
   .comment-header {
     flex-direction: column;
     gap: 8px;
+    align-items: stretch;
   }
 
   .comment-actions {
-    align-self: flex-end;
-  }
-
-  .edit-actions {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
+    justify-content: flex-end;
   }
 }

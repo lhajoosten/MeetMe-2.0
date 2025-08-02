@@ -1,12 +1,14 @@
 using AutoMapper;
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
-using MeetMe.Application.Common.Models;
 using MeetMe.Application.Features.Authentication.Commands.Register;
 using MeetMe.Application.Features.Authentication.DTOs;
+using MeetMe.Application.Features.Users.DTOs;
 using MeetMe.Application.Services;
 using MeetMe.Domain.Entities;
 using MeetMe.Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Linq.Expressions;
 
@@ -14,8 +16,9 @@ namespace MeetMe.Application.Tests.Features.Authentication.Commands.Register;
 
 public class RegisterCommandHandlerTests
 {
-    private readonly Mock<ICommandRepository<User, Guid>> _mockUserCommandRepository;
-    private readonly Mock<IQueryRepository<User, Guid>> _mockUserQueryRepository;
+    private readonly Mock<ICommandRepository<User, int>> _mockUserCommandRepository;
+    private readonly Mock<IQueryRepository<User, int>> _mockUserQueryRepository;
+    private readonly Mock<IQueryRepository<Role, int>> _mockRoleQueryRepository;
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<IJwtTokenService> _mockJwtTokenService;
     private readonly Mock<IPasswordService> _mockPasswordService;
@@ -24,8 +27,9 @@ public class RegisterCommandHandlerTests
 
     public RegisterCommandHandlerTests()
     {
-        _mockUserCommandRepository = new Mock<ICommandRepository<User, Guid>>();
-        _mockUserQueryRepository = new Mock<IQueryRepository<User, Guid>>();
+        _mockUserCommandRepository = new Mock<ICommandRepository<User, int>>();
+        _mockUserQueryRepository = new Mock<IQueryRepository<User, int>>();
+        _mockRoleQueryRepository = new Mock<IQueryRepository<Role, int>>();
         _mockUnitOfWork = new Mock<IUnitOfWork>();
         _mockJwtTokenService = new Mock<IJwtTokenService>();
         _mockPasswordService = new Mock<IPasswordService>();
@@ -34,6 +38,7 @@ public class RegisterCommandHandlerTests
         _handler = new RegisterCommandHandler(
             _mockUserCommandRepository.Object,
             _mockUserQueryRepository.Object,
+            _mockRoleQueryRepository.Object,
             _mockUnitOfWork.Object,
             _mockJwtTokenService.Object,
             _mockPasswordService.Object,
@@ -57,7 +62,7 @@ public class RegisterCommandHandlerTests
         var createdUser = User.Create("John", "Doe", Email.Create("user@example.com"), hashedPassword, "Bio");
         var userDto = new UserDto 
         { 
-            Id = Guid.NewGuid(), 
+            Id = 1, 
             FirstName = "John", 
             LastName = "Doe", 
             Email = "user@example.com" 
@@ -72,11 +77,11 @@ public class RegisterCommandHandlerTests
             .Returns(hashedPassword);
 
         _mockUserCommandRepository
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         _mockJwtTokenService
@@ -202,7 +207,7 @@ public class RegisterCommandHandlerTests
             Times.Never);
 
         _mockUserCommandRepository.Verify(
-            x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -280,7 +285,7 @@ public class RegisterCommandHandlerTests
             .Returns(hashedPassword);
 
         _mockUserCommandRepository
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Failed to add user"));
 
         // Act
@@ -315,11 +320,11 @@ public class RegisterCommandHandlerTests
             .Returns(hashedPassword);
 
         _mockUserCommandRepository
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Save changes failed"));
 
         // Act
@@ -354,11 +359,11 @@ public class RegisterCommandHandlerTests
             .Returns(hashedPassword);
 
         _mockUserCommandRepository
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         _mockJwtTokenService
@@ -391,7 +396,7 @@ public class RegisterCommandHandlerTests
         var createdUser = User.Create("John", "Doe", Email.Create("user@example.com"), hashedPassword, "Bio");
         var userDto = new UserDto 
         { 
-            Id = Guid.NewGuid(), 
+            Id = 1,
             FirstName = "John", 
             LastName = "Doe", 
             Email = "user@example.com" 
@@ -406,11 +411,11 @@ public class RegisterCommandHandlerTests
             .Returns(hashedPassword);
 
         _mockUserCommandRepository
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         _mockJwtTokenService
@@ -436,11 +441,11 @@ public class RegisterCommandHandlerTests
             Times.Once);
 
         _mockUserCommandRepository.Verify(
-            x => x.AddAsync(It.IsAny<User>(), "SYSTEM_REGISTRATION", It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.IsAny<User>(), 0, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync("SYSTEM_REGISTRATION", It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(0, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _mockJwtTokenService.Verify(
@@ -474,7 +479,7 @@ public class RegisterCommandHandlerTests
         var createdUser = User.Create("John", "Doe", Email.Create("user@example.com"), hashedPassword, "Bio");
         var userDto = new UserDto 
         { 
-            Id = Guid.NewGuid(), 
+            Id = 1, 
             FirstName = "John", 
             LastName = "Doe", 
             Email = "user@example.com" 
@@ -489,11 +494,11 @@ public class RegisterCommandHandlerTests
             .Returns(hashedPassword);
 
         _mockUserCommandRepository
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(createdUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(1);
 
         _mockJwtTokenService
@@ -519,11 +524,11 @@ public class RegisterCommandHandlerTests
             Times.Once);
 
         _mockUserCommandRepository.Verify(
-            x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken),
+            x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), cancellationToken),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken),
+            x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken),
             Times.Once);
     }
 
@@ -547,7 +552,7 @@ public class RegisterCommandHandlerTests
         var createdUser = User.Create("John", "Doe", Email.Create(email), hashedPassword, "Bio");
         var userDto = new UserDto 
         { 
-            Id = Guid.NewGuid(), 
+            Id = 1,
             FirstName = "John", 
             LastName = "Doe", 
             Email = email 
@@ -562,11 +567,11 @@ public class RegisterCommandHandlerTests
             .Returns(hashedPassword);
 
         _mockUserCommandRepository
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createdUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         _mockJwtTokenService

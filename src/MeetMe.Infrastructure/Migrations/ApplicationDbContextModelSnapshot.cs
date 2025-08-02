@@ -30,8 +30,8 @@ namespace MeetMe.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -44,32 +44,27 @@ namespace MeetMe.Infrastructure.Migrations
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("LastModifiedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LastModifiedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("MMIdentityId")
+                    b.Property<int>("MeetingId")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("MeetingId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("int")
                         .HasColumnName("StatusId");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("IsActive");
 
                     b.HasIndex("JoinedAt");
-
-                    b.HasIndex("MMIdentityId");
 
                     b.HasIndex("MeetingId");
 
@@ -124,16 +119,16 @@ namespace MeetMe.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<string>("CreatedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -143,14 +138,11 @@ namespace MeetMe.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<string>("LastModifiedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LastModifiedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("MMIdentityId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("ParentCommentId")
                         .HasColumnType("int");
@@ -166,8 +158,6 @@ namespace MeetMe.Infrastructure.Migrations
 
                     b.HasIndex("IsActive");
 
-                    b.HasIndex("MMIdentityId");
-
                     b.HasIndex("ParentCommentId");
 
                     b.HasIndex("PostId");
@@ -175,7 +165,7 @@ namespace MeetMe.Infrastructure.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("MeetMe.Domain.Entities.MMIdentity", b =>
+            modelBuilder.Entity("MeetMe.Domain.Entities.Meeting", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -183,88 +173,14 @@ namespace MeetMe.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccessFailedCount")
+                    b.Property<int?>("CreatedByUserId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("MeetMe.Domain.Entities.Meeting", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedByUserId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("CreatorId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -274,8 +190,11 @@ namespace MeetMe.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("LastModifiedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
@@ -284,9 +203,6 @@ namespace MeetMe.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<int?>("MMIdentityId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("MaxAttendees")
                         .HasColumnType("int");
@@ -302,8 +218,6 @@ namespace MeetMe.Infrastructure.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.HasIndex("MMIdentityId");
-
                     b.HasIndex("Title");
 
                     b.ToTable("Meetings");
@@ -317,16 +231,16 @@ namespace MeetMe.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(5000)
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CreatedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -336,17 +250,14 @@ namespace MeetMe.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<string>("LastModifiedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LastModifiedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("MMIdentityId")
+                    b.Property<int>("MeetingId")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("MeetingId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -361,8 +272,6 @@ namespace MeetMe.Infrastructure.Migrations
 
                     b.HasIndex("IsActive");
 
-                    b.HasIndex("MMIdentityId");
-
                     b.HasIndex("MeetingId");
 
                     b.ToTable("Posts");
@@ -376,26 +285,31 @@ namespace MeetMe.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<int?>("LastModifiedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("MeetMe.Domain.Entities.SearchQuery", b =>
@@ -406,8 +320,8 @@ namespace MeetMe.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -419,8 +333,8 @@ namespace MeetMe.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LastModifiedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
@@ -446,8 +360,8 @@ namespace MeetMe.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -458,16 +372,18 @@ namespace MeetMe.Infrastructure.Migrations
 
             modelBuilder.Entity("MeetMe.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Bio")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("CreatedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -482,14 +398,11 @@ namespace MeetMe.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("IdentityId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedByUserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LastModifiedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
@@ -517,10 +430,6 @@ namespace MeetMe.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("IdentityId")
-                        .IsUnique()
-                        .HasFilter("[IdentityId] IS NOT NULL");
-
                     b.HasIndex("IsActive");
 
                     b.HasIndex("RoleId");
@@ -528,115 +437,8 @@ namespace MeetMe.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
-
             modelBuilder.Entity("MeetMe.Domain.Entities.Attendance", b =>
                 {
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany("Attendances")
-                        .HasForeignKey("MMIdentityId");
-
                     b.HasOne("MeetMe.Domain.Entities.Meeting", "Meeting")
                         .WithMany("Attendees")
                         .HasForeignKey("MeetingId")
@@ -668,10 +470,6 @@ namespace MeetMe.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("MMIdentityId");
-
                     b.HasOne("MeetMe.Domain.Entities.Comment", "ParentComment")
                         .WithMany("Replies")
                         .HasForeignKey("ParentCommentId")
@@ -698,14 +496,10 @@ namespace MeetMe.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany("Meetings")
-                        .HasForeignKey("MMIdentityId");
-
                     b.OwnsOne("MeetMe.Domain.ValueObjects.MeetingDateTime", "MeetingDateTime", b1 =>
                         {
-                            b1.Property<Guid>("MeetingId")
-                                .HasColumnType("uniqueidentifier");
+                            b1.Property<int>("MeetingId")
+                                .HasColumnType("int");
 
                             b1.Property<DateTime>("EndDateTime")
                                 .HasColumnType("datetime2")
@@ -737,10 +531,6 @@ namespace MeetMe.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany("Posts")
-                        .HasForeignKey("MMIdentityId");
-
                     b.HasOne("MeetMe.Domain.Entities.Meeting", "Meeting")
                         .WithMany("Posts")
                         .HasForeignKey("MeetingId")
@@ -763,84 +553,16 @@ namespace MeetMe.Infrastructure.Migrations
 
             modelBuilder.Entity("MeetMe.Domain.Entities.User", b =>
                 {
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", "Identity")
-                        .WithOne()
-                        .HasForeignKey("MeetMe.Domain.Entities.User", "IdentityId");
-
                     b.HasOne("MeetMe.Domain.Entities.Role", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId");
 
-                    b.Navigation("Identity");
-
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.HasOne("MeetMe.Domain.Entities.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.HasOne("MeetMe.Domain.Entities.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.HasOne("MeetMe.Domain.Entities.MMIdentity", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("MeetMe.Domain.Entities.Comment", b =>
                 {
                     b.Navigation("Replies");
-                });
-
-            modelBuilder.Entity("MeetMe.Domain.Entities.MMIdentity", b =>
-                {
-                    b.Navigation("Attendances");
-
-                    b.Navigation("Comments");
-
-                    b.Navigation("Meetings");
-
-                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("MeetMe.Domain.Entities.Meeting", b =>
@@ -853,6 +575,11 @@ namespace MeetMe.Infrastructure.Migrations
             modelBuilder.Entity("MeetMe.Domain.Entities.Post", b =>
                 {
                     b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("MeetMe.Domain.Entities.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("MeetMe.Domain.Entities.User", b =>

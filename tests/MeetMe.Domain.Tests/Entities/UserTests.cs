@@ -24,7 +24,7 @@ public class UserTests
         user.LastName.Should().Be(lastName);
         user.Email.Value.Should().Be(email.ToLowerInvariant());
         user.Bio.Should().Be(bio);
-        user.Id.Should().NotBe(Guid.Empty);
+        user.Id.Should().NotBe(0);
         user.IsActive.Should().BeTrue();
         user.FullName.Should().Be($"{firstName} {lastName}");
     }
@@ -141,37 +141,6 @@ public class UserTests
     }
 
     [Fact]
-    public void CreateFromIdentity_WithValidIdentity_ShouldCreateUser()
-    {
-        // Arrange
-        var identity = new MMIdentity
-        {
-            Id = 1,
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john@example.com"
-        };
-
-        // Act
-        var user = User.CreateFromIdentity(identity);
-
-        // Assert
-        user.Should().NotBeNull();
-        user.FirstName.Should().Be(identity.FirstName);
-        user.LastName.Should().Be(identity.LastName);
-        user.Email.Value.Should().Be(identity.Email.ToLowerInvariant());
-        user.Identity.Should().Be(identity);
-    }
-
-    [Fact]
-    public void CreateFromIdentity_WithNullIdentity_ShouldThrowArgumentNullException()
-    {
-        // Act & Assert
-        var action = () => User.CreateFromIdentity(null!);
-        action.Should().Throw<ArgumentNullException>();
-    }
-
-    [Fact]
     public void UpdateProfile_WithValidData_ShouldUpdateUser()
     {
         // Arrange
@@ -227,7 +196,9 @@ public class UserTests
     {
         // Arrange
         var user = User.Create("John", "Doe", "john@example.com");
-        var role = new Role { Id = 1, Name = "Admin", NormalizedName = "ADMIN" };
+        var role = new Role { Name = "Admin", Description = "Administrator role" };
+        // Set ID for testing purposes
+        role.GetType().GetProperty("Id")!.SetValue(role, 1);
 
         // Act
         user.SetPrimaryRole(role);
@@ -247,52 +218,6 @@ public class UserTests
         // Act & Assert
         var action = () => user.SetPrimaryRole(null!);
         action.Should().Throw<ArgumentNullException>();
-    }
-
-    [Fact]
-    public void SetIdentity_WithValidIdentity_ShouldSetIdentity()
-    {
-        // Arrange
-        var user = User.Create("John", "Doe", "john@example.com");
-        var identity = new MMIdentity
-        {
-            Id = 1,
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john@example.com"
-        };
-
-        // Act
-        user.SetIdentity(identity);
-
-        // Assert
-        user.Identity.Should().Be(identity);
-        user.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-    }
-
-    [Fact]
-    public void SetIdentity_WithNullIdentity_ShouldThrowArgumentNullException()
-    {
-        // Arrange
-        var user = User.Create("John", "Doe", "john@example.com");
-
-        // Act & Assert
-        var action = () => user.SetIdentity(null!);
-        action.Should().Throw<ArgumentNullException>();
-    }
-
-    [Fact]
-    public void SetIdentity_WhenIdentityAlreadySet_ShouldThrowInvalidOperationException()
-    {
-        // Arrange
-        var identity1 = new MMIdentity { Id = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com" };
-        var user = User.CreateFromIdentity(identity1);
-        var identity2 = new MMIdentity { Id = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com" };
-
-        // Act & Assert
-        var action = () => user.SetIdentity(identity2);
-        action.Should().Throw<InvalidOperationException>()
-            .WithMessage("Identity is already set for this user.");
     }
 
     [Fact]

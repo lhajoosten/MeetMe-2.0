@@ -1,174 +1,129 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PostsService } from '../../../core/services/posts.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Post, Comment, CreateCommentRequest } from '../../../shared/models';
-import { CommentComponent } from '../comment/comment.component';
 
 @Component({
   selector: 'app-post-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CommentComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './post-detail.component.html',
   styleUrl: './post-detail.component.scss'
 })
 export class PostDetailComponent implements OnInit {
-  @Input() post!: Post;
-  @Output() postUpdated = new EventEmitter<Post>();
-  @Output() postDeleted = new EventEmitter<string>();
-
-  currentUserId: string | null = null;
-  isEditing = false;
-  showComments = false;
-  showCommentForm = false;
-
-  editForm: FormGroup;
+  post: Post | null = null;
+  comments: Comment[] = [];
   commentForm: FormGroup;
-
-  isUpdatingPost = false;
-  isCreatingComment = false;
+  isLoading = false;
+  isSubmittingComment = false;
   errorMessage = '';
+  currentUserId: string | null = null;
 
   constructor(
+    private route: ActivatedRoute,
+    private router: Router,
     private fb: FormBuilder,
     private postsService: PostsService,
     private authService: AuthService
   ) {
-    this.editForm = this.fb.group({
-      content: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1000)]]
-    });
-
     this.commentForm = this.fb.group({
-      content: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(500)]]
+      content: ['', [Validators.required, Validators.minLength(1)]]
     });
   }
 
   ngOnInit(): void {
-    const currentUser = this.authService.getCurrentUser();
-    this.currentUserId = currentUser?.id || null;
-    this.editForm.patchValue({ content: this.post.content });
+    this.getCurrentUser();
+    this.loadPost();
   }
 
-  get canEditPost(): boolean {
-    return this.currentUserId === this.post.authorId;
+  getCurrentUser(): void {
+    const user = this.authService.getCurrentUser();
+    this.currentUserId = user?.id || null;
   }
 
-  get formattedDate(): string {
-    return new Date(this.post.createdAt).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  loadPost(): void {
+    const postId = this.route.snapshot.paramMap.get('id');
+    if (!postId) {
+      this.router.navigate(['/meetings']);
+      return;
+    }
+
+    this.isLoading = true;
+    this.postsService.getPost(+postId).subscribe({
+      next: (post) => {
+        this.post = post;
+        this.comments = post.comments || [];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading post:', error);
+        this.errorMessage = 'Failed to load post';
+        this.isLoading = false;
+      }
     });
   }
 
-  startEdit(): void {
-    this.isEditing = true;
-    this.editForm.patchValue({ content: this.post.content });
-  }
+  onSubmitComment(): void {
+    if (this.commentForm.valid && this.post) {
+      this.isSubmittingComment = true;
 
-  cancelEdit(): void {
-    this.isEditing = false;
-    this.editForm.patchValue({ content: this.post.content });
-    this.errorMessage = '';
-  }
+      const request: CreateCommentRequest = {
+        content: this.commentForm.value.content,
+        postId: this.post.id
+      };
 
-  saveEdit(): void {
-    if (this.editForm.valid && !this.isUpdatingPost) {
-      this.isUpdatingPost = true;
-      this.errorMessage = '';
-
-      const newContent = this.editForm.value.content.trim();
-
-      this.postsService.updatePost(this.post.id, newContent).subscribe({
-        next: (updatedPost) => {
-          this.postUpdated.emit(updatedPost);
-          this.isEditing = false;
-          this.isUpdatingPost = false;
+      this.postsService.createComment(request).subscribe({
+        next: (comment) => {
+          this.comments.push(comment);
+          this.commentForm.reset();
+          this.isSubmittingComment = false;
         },
         error: (error) => {
-          this.errorMessage = 'Failed to update post. Please try again.';
-          this.isUpdatingPost = false;
-          console.error('Error updating post:', error);
+          console.error('Error creating comment:', error);
+          this.isSubmittingComment = false;
         }
       });
     }
   }
 
-  deletePost(): void {
-    if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-      this.postsService.deletePost(this.post.id).subscribe({
+  onDeleteComment(commentId: number): void {
+    if (this.post) {
+      this.postsService.deleteComment(this.post.id, commentId).subscribe({
         next: () => {
-          this.postDeleted.emit(this.post.id);
+          this.comments = this.comments.filter(c => c.id !== commentId);
         },
         error: (error) => {
-          this.errorMessage = 'Failed to delete post. Please try again.';
+          console.error('Error deleting comment:', error);
+        }
+      });
+    }
+  }
+
+  canDeleteComment(comment: Comment): boolean {
+    return this.currentUserId === comment.authorId;
+  }
+
+  canDeletePost(): boolean {
+    return this.currentUserId === this.post?.authorId;
+  }
+
+  onDeletePost(): void {
+    if (this.post && confirm('Are you sure you want to delete this post?')) {
+      this.postsService.deletePost(this.post.id).subscribe({
+        next: () => {
+          this.router.navigate(['/meetings', this.post?.meetingId]);
+        },
+        error: (error) => {
           console.error('Error deleting post:', error);
         }
       });
     }
   }
 
-  toggleComments(): void {
-    this.showComments = !this.showComments;
-  }
-
-  toggleCommentForm(): void {
-    this.showCommentForm = !this.showCommentForm;
-    if (this.showCommentForm) {
-      this.showComments = true;
-    }
-  }
-
-  onCommentSubmit(): void {
-    if (this.commentForm.valid && !this.isCreatingComment) {
-      this.isCreatingComment = true;
-      this.errorMessage = '';
-
-      const request: CreateCommentRequest = {
-        content: this.commentForm.value.content.trim(),
-        postId: this.post.id
-      };
-
-      this.postsService.createComment(request).subscribe({
-        next: (comment) => {
-          this.post.comments.push(comment);
-          this.commentForm.reset();
-          this.showCommentForm = false;
-          this.isCreatingComment = false;
-        },
-        error: (error) => {
-          this.errorMessage = 'Failed to create comment. Please try again.';
-          this.isCreatingComment = false;
-          console.error('Error creating comment:', error);
-        }
-      });
-    }
-  }
-
-  onCommentUpdated(updatedComment: Comment): void {
-    const index = this.post.comments.findIndex(c => c.id === updatedComment.id);
-    if (index !== -1) {
-      this.post.comments[index] = updatedComment;
-    }
-  }
-
-  onCommentDeleted(commentId: string): void {
-    this.post.comments = this.post.comments.filter(c => c.id !== commentId);
-  }
-
-  get commentContentControl() {
-    return this.commentForm.get('content');
-  }
-
-  get remainingCommentChars(): number {
-    const content = this.commentContentControl?.value || '';
-    return 500 - content.length;
-  }
-
-  trackByCommentId(index: number, comment: Comment): string {
+  trackByCommentId(index: number, comment: Comment): number {
     return comment.id;
   }
 }

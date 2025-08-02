@@ -41,13 +41,8 @@ namespace MeetMe.Infrastructure.Data.Configurations
                 .IsUnique();
 
             // Relationships
-            builder.HasOne(u => u.Identity)
-                .WithOne()
-                .HasForeignKey<User>("IdentityId")
-                .IsRequired(false);
-
             builder.HasOne(u => u.Role)
-                .WithMany()
+                .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId)
                 .IsRequired(false);
 

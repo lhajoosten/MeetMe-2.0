@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Comments.DTOs;
 using MeetMe.Domain.Entities;
 
 namespace MeetMe.Application.Features.Comments.Queries.GetCommentsByPost;

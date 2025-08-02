@@ -8,12 +8,12 @@ namespace MeetMe.Application.Features.Attendances.Commands.LeaveMeeting;
 public class LeaveMeetingCommandHandler : IRequestHandler<LeaveMeetingCommand, Result<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
     private readonly IQueryRepository<Attendance, int> _attendanceQueryRepository;
 
     public LeaveMeetingCommandHandler(
         IUnitOfWork unitOfWork,
-        IQueryRepository<User, Guid> userQueryRepository,
+        IQueryRepository<User, int> userQueryRepository,
         IQueryRepository<Attendance, int> attendanceQueryRepository)
     {
         _unitOfWork = unitOfWork;
@@ -46,10 +46,10 @@ public class LeaveMeetingCommandHandler : IRequestHandler<LeaveMeetingCommand, R
 
             // Update in repository
             var attendanceRepository = _unitOfWork.CommandRepository<Attendance, int>();
-            await attendanceRepository.UpdateAsync(attendance, request.UserId.ToString(), cancellationToken);
+            await attendanceRepository.UpdateAsync(attendance, request.UserId, cancellationToken);
 
             // Save changes
-            await _unitOfWork.SaveChangesAsync(request.UserId.ToString(), cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.UserId, cancellationToken);
 
             return Result.Success(Unit.Value);
         }

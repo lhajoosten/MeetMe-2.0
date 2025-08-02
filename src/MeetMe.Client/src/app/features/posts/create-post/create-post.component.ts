@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PostsService } from '../../../core/services/posts.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Post, CreatePostRequest } from '../../../shared/models';
 
 @Component({
@@ -14,28 +15,28 @@ import { Post, CreatePostRequest } from '../../../shared/models';
 export class CreatePostComponent {
   @Input() meetingId!: string;
   @Output() postCreated = new EventEmitter<Post>();
-  @Output() cancelled = new EventEmitter<void>();
 
   postForm: FormGroup;
-  isSubmitting = false;
+  isLoading = false;
   errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
-    private postsService: PostsService
+    private postsService: PostsService,
+    private authService: AuthService
   ) {
     this.postForm = this.fb.group({
-      content: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1000)]]
+      content: ['', [Validators.required, Validators.minLength(1)]]
     });
   }
 
   onSubmit(): void {
-    if (this.postForm.valid && !this.isSubmitting) {
-      this.isSubmitting = true;
+    if (this.postForm.valid && this.meetingId) {
+      this.isLoading = true;
       this.errorMessage = '';
 
       const request: CreatePostRequest = {
-        content: this.postForm.value.content.trim(),
+        content: this.postForm.value.content,
         meetingId: this.meetingId
       };
 
@@ -43,29 +44,16 @@ export class CreatePostComponent {
         next: (post) => {
           this.postCreated.emit(post);
           this.postForm.reset();
-          this.isSubmitting = false;
+          this.postForm.markAsUntouched();
+          this.postForm.markAsPristine();
+          this.isLoading = false;
         },
         error: (error) => {
-          this.errorMessage = 'Failed to create post. Please try again.';
-          this.isSubmitting = false;
+          this.errorMessage = 'Failed to create post';
+          this.isLoading = false;
           console.error('Error creating post:', error);
         }
       });
     }
-  }
-
-  onCancel(): void {
-    this.postForm.reset();
-    this.errorMessage = '';
-    this.cancelled.emit();
-  }
-
-  get contentControl() {
-    return this.postForm.get('content');
-  }
-
-  get remainingChars(): number {
-    const content = this.contentControl?.value || '';
-    return 1000 - content.length;
   }
 }

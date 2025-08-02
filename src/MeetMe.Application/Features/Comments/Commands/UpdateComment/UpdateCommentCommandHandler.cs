@@ -9,13 +9,13 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
 {
     private readonly ICommandRepository<Comment, int> _commentCommandRepository;
     private readonly IQueryRepository<Comment, int> _commentQueryRepository;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateCommentCommandHandler(
         ICommandRepository<Comment, int> commentCommandRepository,
         IQueryRepository<Comment, int> commentQueryRepository,
-        IQueryRepository<User, Guid> userQueryRepository,
+        IQueryRepository<User, int> userQueryRepository,
         IUnitOfWork unitOfWork)
     {
         _commentCommandRepository = commentCommandRepository;
@@ -48,8 +48,8 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
         // Use domain method to update content
         comment.UpdateContent(request.Content, user);
 
-        await _commentCommandRepository.UpdateAsync(comment, request.UserId.ToString(), cancellationToken);
-        await _unitOfWork.SaveChangesAsync(request.UserId.ToString(), cancellationToken);
+        await _commentCommandRepository.UpdateAsync(comment, request.UserId, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(request.UserId, cancellationToken);
 
         return Result.Success(true);
     }

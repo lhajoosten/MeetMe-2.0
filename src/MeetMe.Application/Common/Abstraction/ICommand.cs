@@ -4,17 +4,17 @@ using MeetMe.Application.Common.Models;
 namespace MeetMe.Application.Common.Abstraction
 {
     /// <summary>
-    /// Marker interface for commands that don't return a value
+    /// Marker interface for commands
     /// </summary>
-    public interface ICommand : IRequest<Result>
+    /// <typeparam name="TResponse">The response type</typeparam>
+    public interface ICommand<TResponse> : IRequest<Result<TResponse>>
     {
     }
 
     /// <summary>
-    /// Marker interface for commands that return a value
+    /// Marker interface for commands without response
     /// </summary>
-    /// <typeparam name="TResponse">The type of the response</typeparam>
-    public interface ICommand<TResponse> : IRequest<Result<TResponse>>
+    public interface ICommand : IRequest<Result<MediatR.Unit>>
     {
     }
 }

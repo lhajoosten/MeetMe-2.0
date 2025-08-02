@@ -5,17 +5,17 @@ using MeetMe.Domain.Entities;
 
 namespace MeetMe.Application.Features.Attendances.Commands.JoinMeeting;
 
-public class JoinMeetingCommandHandler : IRequestHandler<JoinMeetingCommand, Result<Guid>>
+public class JoinMeetingCommandHandler : IRequestHandler<JoinMeetingCommand, Result<int>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IQueryRepository<Meeting, Guid> _meetingQueryRepository;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<Meeting, int> _meetingQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
     private readonly IQueryRepository<Attendance, int> _attendanceQueryRepository;
 
     public JoinMeetingCommandHandler(
         IUnitOfWork unitOfWork,
-        IQueryRepository<Meeting, Guid> meetingQueryRepository,
-        IQueryRepository<User, Guid> userQueryRepository,
+        IQueryRepository<Meeting, int> meetingQueryRepository,
+        IQueryRepository<User, int> userQueryRepository,
         IQueryRepository<Attendance, int> attendanceQueryRepository)
     {
         _unitOfWork = unitOfWork;
@@ -24,7 +24,7 @@ public class JoinMeetingCommandHandler : IRequestHandler<JoinMeetingCommand, Res
         _attendanceQueryRepository = attendanceQueryRepository;
     }
 
-    public async Task<Result<Guid>> Handle(JoinMeetingCommand request, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(JoinMeetingCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -32,14 +32,14 @@ public class JoinMeetingCommandHandler : IRequestHandler<JoinMeetingCommand, Res
             var meeting = await _meetingQueryRepository.GetByIdAsync(request.MeetingId, cancellationToken);
             if (meeting == null)
             {
-                return Result.Failure<Guid>("Meeting not found");
+                return Result.Failure<int>("Meeting not found");
             }
 
             // Get the user
             var user = await _userQueryRepository.GetByIdAsync(request.UserId, cancellationToken);
             if (user == null)
             {
-                return Result.Failure<Guid>("User not found");
+                return Result.Failure<int>("User not found");
             }
 
             // Check if user is already attending this meeting
@@ -48,7 +48,7 @@ public class JoinMeetingCommandHandler : IRequestHandler<JoinMeetingCommand, Res
 
             if (existingAttendance != null && existingAttendance.IsActive)
             {
-                return Result.Failure<Guid>("User is already attending this meeting");
+                return Result.Failure<int>("User is already attending this meeting");
             }
 
             // Check if meeting has reached maximum capacity
@@ -57,7 +57,7 @@ public class JoinMeetingCommandHandler : IRequestHandler<JoinMeetingCommand, Res
 
             if (meeting.MaxAttendees.HasValue && currentAttendeeCount >= meeting.MaxAttendees.Value)
             {
-                return Result.Failure<Guid>("Meeting has reached maximum capacity");
+                return Result.Failure<int>("Meeting has reached maximum capacity");
             }
 
             // Create attendance
@@ -65,16 +65,16 @@ public class JoinMeetingCommandHandler : IRequestHandler<JoinMeetingCommand, Res
 
             // Add to repository
             var attendanceRepository = _unitOfWork.CommandRepository<Attendance, int>();
-            await attendanceRepository.AddAsync(attendance, request.UserId.ToString(), cancellationToken);
+            await attendanceRepository.AddAsync(attendance, request.UserId, cancellationToken);
 
             // Save changes
-            await _unitOfWork.SaveChangesAsync(request.UserId.ToString(), cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.UserId, cancellationToken);
 
             return Result.Success(meeting.Id);
         }
         catch (Exception ex)
         {
-            return Result.Failure<Guid>($"Failed to join meeting: {ex.Message}");
+            return Result.Failure<int>($"Failed to join meeting: {ex.Message}");
         }
     }
 }

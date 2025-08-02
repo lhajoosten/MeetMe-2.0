@@ -3,39 +3,39 @@ using MediatR;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
 using MeetMe.Application.Features.Authentication.DTOs;
+using MeetMe.Application.Features.Users.DTOs;
 using MeetMe.Application.Services;
 using MeetMe.Domain.Entities;
 using MeetMe.Domain.ValueObjects;
-using Microsoft.AspNetCore.Identity;
 
 namespace MeetMe.Application.Features.Authentication.Commands.Register;
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<AuthenticationResult>>
 {
-    private readonly ICommandRepository<User, Guid> _userCommandRepository;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly ICommandRepository<User, int> _userCommandRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
+    private readonly IQueryRepository<Role, int> _roleQueryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IPasswordService _passwordService;
     private readonly IMapper _mapper;
-    private readonly RoleManager<Role> _roleManager;
 
     public RegisterCommandHandler(
-        ICommandRepository<User, Guid> userCommandRepository,
-        IQueryRepository<User, Guid> userQueryRepository,
+        ICommandRepository<User, int> userCommandRepository,
+        IQueryRepository<User, int> userQueryRepository,
+        IQueryRepository<Role, int> roleQueryRepository,
         IUnitOfWork unitOfWork,
         IJwtTokenService jwtTokenService,
         IPasswordService passwordService,
-        IMapper mapper,
-        RoleManager<Role> roleManager)
+        IMapper mapper)
     {
         _userCommandRepository = userCommandRepository;
         _userQueryRepository = userQueryRepository;
+        _roleQueryRepository = roleQueryRepository;
         _unitOfWork = unitOfWork;
         _jwtTokenService = jwtTokenService;
         _passwordService = passwordService;
         _mapper = mapper;
-        _roleManager = roleManager;
     }
 
     public async Task<Result<AuthenticationResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -73,7 +73,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
             var hashedPassword = _passwordService.HashPassword(request.Password);
 
             // Get the default Member role
-            var memberRole = await _roleManager.FindByNameAsync("Member");
+            var memberRole = await _roleQueryRepository.FirstOrDefaultAsync(r => r.Name == "Member", cancellationToken);
             
             if (memberRole == null)
             {
@@ -90,10 +90,10 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
             // Set the default role
             user.SetPrimaryRole(memberRole);
 
-            // Use a temporary user ID for audit (the user doesn't exist yet)
-            var tempUserId = "SYSTEM_REGISTRATION";
-            await _userCommandRepository.AddAsync(user, tempUserId, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(tempUserId, cancellationToken);
+            // Use a system user ID for audit (the user doesn't exist yet)
+            const int systemUserId = 0; // System operations user ID
+            await _userCommandRepository.AddAsync(user, systemUserId, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(systemUserId, cancellationToken);
 
             // Generate JWT token
             var token = _jwtTokenService.GenerateToken(user);

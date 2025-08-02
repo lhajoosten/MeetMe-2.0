@@ -1,48 +1,61 @@
-<div class="post-list-container">
-	<div class="posts-header">
-		<h3>Discussion</h3>
-		<button
-			class="btn btn-primary"
-			(click)="toggleCreatePost()"
-			[class.active]="showCreatePost"
-		>
-			{{ showCreatePost ? "Cancel" : "New Post" }}
-		</button>
-	</div>
+<div class="posts-container">
+  <app-create-post
+    [meetingId]="meetingId"
+    (postCreated)="onPostCreated($event)">
+  </app-create-post>
 
-	<app-create-post
-		*ngIf="showCreatePost"
-		[meetingId]="meetingId"
-		(postCreated)="onPostCreated($event)"
-		(cancelled)="showCreatePost = false"
-	>
-	</app-create-post>
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading posts...</p>
+  </div>
 
-	<div class="posts-content" *ngIf="!isLoading && !errorMessage">
-		<div *ngIf="posts.length === 0" class="no-posts">
-			<div class="no-posts-icon">💬</div>
-			<h4>No posts yet</h4>
-			<p>Be the first to start the discussion!</p>
-		</div>
+  <div class="error-message" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </div>
 
-		<app-post-detail
-			*ngFor="let post of posts; trackBy: trackByPostId"
-			[post]="post"
-			(postUpdated)="onPostUpdated($event)"
-			(postDeleted)="onPostDeleted($event)"
-			class="post-item"
-		>
-		</app-post-detail>
-	</div>
+  <div class="posts-list" *ngIf="!isLoading && !errorMessage">
+    <div class="no-posts" *ngIf="posts.length === 0">
+      <p>No posts yet. Be the first to share your thoughts!</p>
+    </div>
 
-	<div class="loading-container" *ngIf="isLoading">
-		<div class="loading-spinner"></div>
-		<p>Loading posts...</p>
-	</div>
+    <div
+      *ngFor="let post of posts; trackBy: trackByPostId"
+      class="post-card"
+    >
+      <div class="post-header">
+        <div class="author-info">
+          <h4>{{ post.author.firstName }} {{ post.author.lastName }}</h4>
+          <span class="post-date">{{ post.createdAt | date:'medium' }}</span>
+        </div>
+        <div class="post-actions">
+          <button
+            class="btn btn-danger btn-small"
+            (click)="onPostDeleted(post.id)"
+            title="Delete post"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
 
-	<div class="error-container" *ngIf="errorMessage">
-		<div class="error-icon">⚠️</div>
-		<p>{{ errorMessage }}</p>
-		<button class="btn btn-secondary" (click)="loadPosts()">Try Again</button>
-	</div>
+      <div class="post-content">
+        <p>{{ post.content }}</p>
+      </div>
+
+      <div class="post-footer">
+        <div class="post-stats">
+          <span class="comments-count">
+            {{ post.comments.length }} {{ post.comments.length === 1 ? 'comment' : 'comments' }}
+          </span>
+        </div>
+        <div class="post-footer-actions">
+          <a
+            [routerLink]="['/posts', post.id]"
+            class="btn btn-outline btn-small"
+          >
+            View Details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

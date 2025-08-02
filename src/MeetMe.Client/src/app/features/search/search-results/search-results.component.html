@@ -1,7 +1,7 @@
 <div class="search-container">
   <div class="search-header">
     <button class="btn-back" routerLink="/meetings">
-      <i class="icon-arrow-left"></i> Back to Meetings
+      <app-icon name="arrow-left"></app-icon> Back to Meetings
     </button>
     <h1>Search Results</h1>
     <p *ngIf="searchQuery">Showing results for "{{ searchQuery }}"</p>
@@ -19,7 +19,7 @@
           class="search-input"
         />
         <button class="search-btn" (click)="search()">
-          <i class="icon-search"></i>
+          <app-icon name="search"></app-icon>
         </button>
       </div>
 
@@ -51,11 +51,11 @@
 
   <!-- Results -->
   <div class="search-results">
-    <div class="results-summary" *ngIf="!isLoading">
-      <p>{{ meetings.length }} meetings found</p>
+    <div class="results-summary" *ngIf="!isLoading && meetings">
+      <p>{{ meetings.length || 0 }} meetings found</p>
     </div>
 
-    <div class="meetings-grid" *ngIf="!isLoading && meetings.length > 0">
+    <div class="meetings-grid" *ngIf="!isLoading && meetings && meetings.length > 0">
       <div
         class="meeting-card"
         *ngFor="let meeting of meetings"
@@ -72,21 +72,21 @@
 
         <div class="meeting-meta">
           <div class="meta-item">
-            <i class="icon-calendar"></i>
-            <span>{{ formatDate(meeting.startDate) }}</span>
+            <app-icon name="calendar" [size]="16"></app-icon>
+            <span>{{ formatDate(meeting.startDateTime) }}</span>
           </div>
           <div class="meta-item">
-            <i class="icon-location"></i>
+            <app-icon name="location" [size]="16"></app-icon>
             <span>{{ meeting.location }}</span>
           </div>
           <div class="meta-item">
-            <i class="icon-users"></i>
-            <span>{{ meeting.attendees.length }} attendees</span>
+            <app-icon name="users" [size]="16"></app-icon>
+            <span>{{ meeting.attendeeCount || 0 }} attendees</span>
           </div>
         </div>
 
         <div class="meeting-organizer">
-          <span>Organized by {{ meeting.organizer.firstName }} {{ meeting.organizer.lastName }}</span>
+          <span>Organized by {{ meeting.creatorName || 'Unknown' }}</span>
         </div>
       </div>
     </div>
@@ -96,9 +96,9 @@
       <p>Searching meetings...</p>
     </div>
 
-    <div class="empty-state" *ngIf="!isLoading && meetings.length === 0">
+    <div class="empty-state" *ngIf="!isLoading && meetings && meetings.length === 0">
       <div class="empty-icon">
-        <i class="icon-search"></i>
+        <app-icon name="search" [size]="48"></app-icon>
       </div>
       <h3>No meetings found</h3>
       <p>Try adjusting your search criteria or browse all meetings.</p>

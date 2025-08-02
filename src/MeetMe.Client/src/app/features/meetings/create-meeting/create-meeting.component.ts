@@ -4,11 +4,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { MeetingsService } from '../../../core/services/meetings.service';
 import { CreateMeetingRequest } from '../../../shared/models';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-create-meeting',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, IconComponent],
   templateUrl: './create-meeting.component.html',
   styleUrl: './create-meeting.component.scss'
 })
@@ -16,6 +17,7 @@ export class CreateMeetingComponent {
   meetingForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -50,8 +52,15 @@ export class CreateMeetingComponent {
       };
 
       this.meetingsService.createMeeting(request).subscribe({
-        next: (meeting) => {
-          this.router.navigate(['/meetings', meeting.id]);
+        next: (meetingId) => {
+          this.isLoading = false;
+          this.successMessage = 'Meeting created successfully!';
+          this.errorMessage = '';
+
+          // Navigate to meetings list after a short delay to show success message
+          setTimeout(() => {
+            this.router.navigate(['/meetings']);
+          }, 1500);
         },
         error: (error: any) => {
           this.isLoading = false;

@@ -1,21 +1,25 @@
 using MeetMe.Application.Common.Abstraction;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Meetings.DTOs;
 using MeetMe.Domain.Entities;
 using System.Linq.Expressions;
+using AutoMapper;
 
 namespace MeetMe.Application.Features.Meetings.Queries.GetAllMeetings
 {
-    public class GetMeetingsQueryHandler : IQueryHandler<GetMeetingsQuery, List<MeetingDto>>
+    public class GetMeetingsQueryHandler : IQueryHandler<GetMeetingsQuery, List<MeetingSummaryDto>>
     {
-        private readonly IQueryRepository<Meeting, Guid> _meetingRepository;
+        private readonly IQueryRepository<Meeting, int> _meetingRepository;
+        private readonly IMapper _mapper;
 
-        public GetMeetingsQueryHandler(IQueryRepository<Meeting, Guid> meetingRepository)
+        public GetMeetingsQueryHandler(IQueryRepository<Meeting, int> meetingRepository, IMapper mapper)
         {
             _meetingRepository = meetingRepository;
+            _mapper = mapper;
         }
 
-        public async Task<Result<List<MeetingDto>>> Handle(GetMeetingsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<MeetingSummaryDto>>> Handle(GetMeetingsQuery request, CancellationToken cancellationToken)
         {
             // Build the filter expression
             Expression<Func<Meeting, bool>> filter = m => true;
@@ -23,6 +27,11 @@ namespace MeetMe.Application.Features.Meetings.Queries.GetAllMeetings
             if (request.IsActive.HasValue)
             {
                 filter = CombineExpressions(filter, m => m.IsActive == request.IsActive.Value);
+            }
+
+            if (request.IsPublic.HasValue)
+            {
+                filter = CombineExpressions(filter, m => m.IsPublic == request.IsPublic.Value);
             }
 
             if (request.CreatorId.HasValue)
@@ -59,31 +68,16 @@ namespace MeetMe.Application.Features.Meetings.Queries.GetAllMeetings
                 m => m.Attendees,
                 m => m.Posts);
 
-            // Project to DTOs
-            var meetingDtos = meetings
+            // Apply pagination and mapping
+            var pagedMeetings = meetings
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .Select(m => new MeetingDto
-                {
-                    Id = m.Id,
-                    Title = m.Title,
-                    Description = m.Description,
-                    Location = m.Location.Value,
-                    StartDateTime = m.MeetingDateTime.StartDateTime,
-                    EndDateTime = m.MeetingDateTime.EndDateTime,
-                    MaxAttendees = m.MaxAttendees,
-                    IsActive = m.IsActive,
-                    CreatorId = m.CreatorId,
-                    CreatorName = m.Creator.FullName,
-                    AttendeeCount = m.Attendees.Count(a => a.IsActive),
-                    PostCount = m.Posts.Count(p => p.IsActive),
-                    IsUpcoming = m.IsUpcoming(),
-                    CreatedDate = m.CreatedDate
-                })
-                .OrderBy(m => m.StartDateTime)
+                .OrderBy(m => m.MeetingDateTime.StartDateTime)
                 .ToList();
 
-            return Result.Success(meetingDtos);
+            var meetingSummaryDtos = _mapper.Map<List<MeetingSummaryDto>>(pagedMeetings);
+
+            return Result.Success(meetingSummaryDtos);
         }
 
         private static Expression<Func<Meeting, bool>> CombineExpressions(

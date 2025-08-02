@@ -1,45 +1,26 @@
 <div class="create-post-container">
   <div class="create-post-card">
-    <h4>Create New Post</h4>
-
     <form [formGroup]="postForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <textarea
-          id="content"
           formControlName="content"
           class="form-control"
-          [class.error]="contentControl?.invalid && contentControl?.touched"
-          placeholder="Share your thoughts about this meeting..."
+          [class.error]="postForm.get('content')?.invalid && postForm.get('content')?.touched"
+          placeholder="What's on your mind about this meeting?"
           rows="4"
         ></textarea>
-
-        <div class="form-footer">
-          <div class="char-counter" [class.warning]="remainingChars < 50" [class.danger]="remainingChars < 0">
-            {{ remainingChars }} characters remaining
-          </div>
-
-          <div class="error-message" *ngIf="contentControl?.invalid && contentControl?.touched">
-            <small *ngIf="contentControl?.errors?.['required']">Post content is required</small>
-            <small *ngIf="contentControl?.errors?.['minlength']">Post cannot be empty</small>
-            <small *ngIf="contentControl?.errors?.['maxlength']">Post is too long (max 1000 characters)</small>
-          </div>
+        <div class="error-message" *ngIf="postForm.get('content')?.invalid && postForm.get('content')?.touched">
+          <small *ngIf="postForm.get('content')?.errors?.['required']">Please enter some content</small>
         </div>
       </div>
 
       <div class="form-actions">
         <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="onCancel()"
-          [disabled]="isSubmitting">
-          Cancel
-        </button>
-
-        <button
           type="submit"
           class="btn btn-primary"
-          [disabled]="postForm.invalid || isSubmitting || remainingChars < 0">
-          {{ isSubmitting ? 'Posting...' : 'Post' }}
+          [disabled]="postForm.invalid || isLoading"
+        >
+          {{ isLoading ? 'Posting...' : 'Share Post' }}
         </button>
       </div>
 

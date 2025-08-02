@@ -44,12 +44,21 @@ namespace MeetMe.Application.Common.Behaviors
                 if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
                 {
                     var resultType = typeof(TResponse).GetGenericArguments()[0];
-                    // Use dynamic to call Result.Failure<T>(errorMessage)
-                    dynamic result = typeof(Result)
-                        .GetMethod("Failure", BindingFlags.Public | BindingFlags.Static)!
-                        .MakeGenericMethod(resultType)
-                        .Invoke(null, new object[] { errorMessage })!;
-                    return (TResponse)result;
+                    // Get all methods named "Failure" and filter to the generic one
+                    var failureMethods = typeof(Result).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Where(m => m.Name == "Failure" && m.IsGenericMethodDefinition)
+                        .ToArray();
+                    
+                    if (failureMethods.Length == 1)
+                    {
+                        var failureMethod = failureMethods[0].MakeGenericMethod(resultType);
+                        var result = failureMethod.Invoke(null, new object[] { errorMessage })!;
+                        return (TResponse)result;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Could not find unique generic Failure method");
+                    }
                 }
 
                 if (typeof(TResponse) == typeof(Result))

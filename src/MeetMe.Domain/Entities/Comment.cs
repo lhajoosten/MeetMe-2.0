@@ -7,7 +7,7 @@ namespace MeetMe.Domain.Entities
     public class Comment : BaseEntity
     {
         public string Content { get; private set; } = string.Empty;
-        public Guid AuthorId { get; private set; }
+        public int AuthorId { get; private set; }
         public int PostId { get; private set; }
         public int? ParentCommentId { get; private set; }
 
@@ -47,7 +47,7 @@ namespace MeetMe.Domain.Entities
 
             Content = content;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id.ToString();
+            LastModifiedByUserId = user.Id;
         }
 
         public void Deactivate(User user)
@@ -56,7 +56,7 @@ namespace MeetMe.Domain.Entities
 
             IsActive = false;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id.ToString();
+            LastModifiedByUserId = user.Id;
         }
 
         public bool IsReply => ParentCommentId.HasValue;

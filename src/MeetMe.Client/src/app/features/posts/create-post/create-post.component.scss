@@ -4,21 +4,14 @@
 
 .create-post-card {
   background: white;
-  border: 1px solid #e1e5e9;
-  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.create-post-card h4 {
-  margin: 0 0 20px 0;
-  color: #333;
-  font-weight: 600;
-  font-size: 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .form-control {
@@ -27,11 +20,11 @@
   border: 2px solid #e1e5e9;
   border-radius: 8px;
   font-size: 16px;
-  line-height: 1.5;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
-  resize: vertical;
   font-family: inherit;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 100px;
+  box-sizing: border-box;
 }
 
 .form-control:focus {
@@ -43,45 +36,20 @@
   border-color: #e74c3c;
 }
 
-.form-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-top: 8px;
-  gap: 16px;
-}
-
-.char-counter {
-  font-size: 14px;
-  color: #666;
-  white-space: nowrap;
-}
-
-.char-counter.warning {
-  color: #f39c12;
-  font-weight: 600;
-}
-
-.char-counter.danger {
-  color: #e74c3c;
-  font-weight: 600;
-}
-
 .form-actions {
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
+  margin-top: 16px;
 }
 
 .btn {
   padding: 10px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 80px;
 }
 
 .btn-primary {
@@ -94,17 +62,6 @@
   transform: translateY(-1px);
 }
 
-.btn-secondary {
-  background: #f8f9fa;
-  color: #666;
-  border: 1px solid #e1e5e9;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #e9ecef;
-  color: #333;
-}
-
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -113,13 +70,11 @@
 
 .error-message {
   margin-top: 8px;
-  flex: 1;
 }
 
 .error-message small {
   color: #e74c3c;
   font-size: 14px;
-  display: block;
 }
 
 @media (max-width: 768px) {
@@ -127,21 +82,8 @@
     padding: 16px;
   }
 
-  .form-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .char-counter {
-    text-align: center;
-  }
-
-  .form-actions {
-    justify-content: stretch;
-  }
-
-  .btn {
-    flex: 1;
+  .form-control {
+    padding: 10px 12px;
+    font-size: 14px;
   }
 }

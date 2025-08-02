@@ -1,5 +1,6 @@
 using MediatR;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Posts.DTOs;
 
 namespace MeetMe.Application.Features.Posts.Commands.UpdatePost;
 
@@ -8,9 +9,9 @@ public record UpdatePostCommand : IRequest<Result<PostDto>>
     public int Id { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Content { get; init; } = string.Empty;
-    public Guid UserId { get; init; }
+    public int UserId { get; init; }
 
-    public UpdatePostCommand(int id, string title, string content, Guid userId)
+    public UpdatePostCommand(int id, string title, string content, int userId)
     {
         Id = id;
         Title = title;

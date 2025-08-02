@@ -92,7 +92,7 @@ public class JwtTokenService : IJwtTokenService
         }
     }
 
-    public Guid GetUserIdFromToken(string token)
+    public int GetUserIdFromToken(string token)
     {
         try
         {
@@ -112,7 +112,7 @@ public class JwtTokenService : IJwtTokenService
             }, out SecurityToken validatedToken);
 
             var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
-            return Guid.Parse(userIdClaim?.Value ?? throw new UnauthorizedAccessException("Invalid token"));
+            return int.Parse(userIdClaim?.Value ?? throw new UnauthorizedAccessException("Invalid token"));
         }
         catch
         {

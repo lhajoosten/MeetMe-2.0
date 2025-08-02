@@ -1,4 +1,4 @@
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Users.DTOs;
 
 namespace MeetMe.Application.Features.Authentication.DTOs;
 

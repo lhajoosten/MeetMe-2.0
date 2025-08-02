@@ -1,9 +1,9 @@
 using AutoMapper;
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
-using MeetMe.Application.Common.Models;
 using MeetMe.Application.Features.Authentication.Commands.Login;
 using MeetMe.Application.Features.Authentication.DTOs;
+using MeetMe.Application.Features.Users.DTOs;
 using MeetMe.Application.Services;
 using MeetMe.Domain.Entities;
 using MeetMe.Domain.ValueObjects;
@@ -14,7 +14,7 @@ namespace MeetMe.Application.Tests.Features.Authentication.Commands.Login;
 
 public class LoginCommandHandlerTests
 {
-    private readonly Mock<IQueryRepository<User, Guid>> _mockUserQueryRepository;
+    private readonly Mock<IQueryRepository<User, int>> _mockUserQueryRepository;
     private readonly Mock<IJwtTokenService> _mockJwtTokenService;
     private readonly Mock<IPasswordService> _mockPasswordService;
     private readonly Mock<IMapper> _mockMapper;
@@ -22,7 +22,7 @@ public class LoginCommandHandlerTests
 
     public LoginCommandHandlerTests()
     {
-        _mockUserQueryRepository = new Mock<IQueryRepository<User, Guid>>();
+        _mockUserQueryRepository = new Mock<IQueryRepository<User, int>>();
         _mockJwtTokenService = new Mock<IJwtTokenService>();
         _mockPasswordService = new Mock<IPasswordService>();
         _mockMapper = new Mock<IMapper>();
@@ -159,11 +159,6 @@ public class LoginCommandHandlerTests
         var command = new LoginCommand(email, password);
 
         var user = User.Create("John", "Doe", Email.Create(email), "hashedPassword123", "Bio");
-        
-        // Make user inactive using reflection
-        var userType = typeof(User);
-        var isActiveProperty = userType.GetProperty("IsActive");
-        isActiveProperty?.SetValue(user, false);
 
         _mockUserQueryRepository
             .Setup(x => x.FirstOrDefaultAsync(It.IsAny<Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))

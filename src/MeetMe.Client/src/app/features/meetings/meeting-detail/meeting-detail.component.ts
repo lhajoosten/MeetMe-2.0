@@ -3,46 +3,36 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MeetingsService } from '../../../core/services/meetings.service';
-import { PostsService } from '../../../core/services/posts.service';
 import { AttendanceService } from '../../../core/services/attendance.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Meeting, Post, CreatePostRequest, CreateCommentRequest, AttendanceStatus } from '../../../shared/models';
+import { Meeting, Attendance, AttendanceStatus } from '../../../shared/models';
+import { PostListComponent } from '../../posts/post-list/post-list.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-meeting-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, PostListComponent, IconComponent],
   templateUrl: './meeting-detail.component.html',
   styleUrl: './meeting-detail.component.scss'
 })
 export class MeetingDetailComponent implements OnInit {
   meeting: Meeting | null = null;
-  posts: Post[] = [];
-  postForm: FormGroup;
+  userAttendance: Attendance | null = null;
   isLoading = false;
-  isPostLoading = false;
-  expandedPosts = new Set<string>();
-  newCommentContent: { [postId: string]: string } = {};
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private meetingsService: MeetingsService,
-    private postsService: PostsService,
     private attendanceService: AttendanceService,
-    private authService: AuthService,
-    private fb: FormBuilder
-  ) {
-    this.postForm = this.fb.group({
-      content: ['', [Validators.required]]
-    });
-  }
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     const meetingId = this.route.snapshot.paramMap.get('id');
     if (meetingId) {
       this.loadMeeting(meetingId);
-      this.loadPosts(meetingId);
     }
   }
 
@@ -51,17 +41,14 @@ export class MeetingDetailComponent implements OnInit {
   }
 
   get isOrganizer(): boolean {
-    return this.meeting?.organizerId === this.currentUser?.id;
-  }
-
-  get userAttendance() {
-    return this.meeting?.attendees.find(a => a.userId === this.currentUser?.id);
+    return this.meeting?.creatorId === this.currentUser?.id;
   }
 
   loadMeeting(id: string): void {
     this.meetingsService.getMeeting(id).subscribe({
       next: (meeting) => {
         this.meeting = meeting;
+        this.loadUserAttendance(id);
       },
       error: (error) => {
         console.error('Error loading meeting:', error);
@@ -70,13 +57,16 @@ export class MeetingDetailComponent implements OnInit {
     });
   }
 
-  loadPosts(meetingId: string): void {
-    this.postsService.getPostsByMeeting(meetingId).subscribe({
-      next: (posts: Post[]) => {
-        this.posts = posts;
+  loadUserAttendance(meetingId: string): void {
+    if (!this.currentUser) return;
+
+    this.attendanceService.getMeetingAttendances(meetingId).subscribe({
+      next: (attendances) => {
+        this.userAttendance = attendances.find(a => a.userId === this.currentUser?.id) || null;
       },
-      error: (error: any) => {
-        console.error('Error loading posts:', error);
+      error: (error) => {
+        console.error('Error loading user attendance:', error);
+        this.userAttendance = null;
       }
     });
   }
@@ -87,8 +77,10 @@ export class MeetingDetailComponent implements OnInit {
     this.isLoading = true;
     this.attendanceService.joinMeeting(this.meeting.id).subscribe({
       next: (attendance) => {
+        this.userAttendance = attendance;
         if (this.meeting) {
-          this.meeting.attendees.push(attendance);
+          // Update the attendee count since we don't have the full array
+          this.meeting.attendeeCount = (this.meeting.attendeeCount || 0) + 1;
         }
         this.isLoading = false;
       },
@@ -105,10 +97,10 @@ export class MeetingDetailComponent implements OnInit {
     this.isLoading = true;
     this.attendanceService.leaveMeeting(this.userAttendance.id).subscribe({
       next: () => {
-        if (this.meeting && this.userAttendance) {
-          this.meeting.attendees = this.meeting.attendees.filter(
-            a => a.id !== this.userAttendance!.id
-          );
+        this.userAttendance = null;
+        if (this.meeting) {
+          // Update the attendee count
+          this.meeting.attendeeCount = Math.max(0, (this.meeting.attendeeCount || 0) - 1);
         }
         this.isLoading = false;
       },
@@ -120,7 +112,6 @@ export class MeetingDetailComponent implements OnInit {
   }
 
   editMeeting(): void {
-    // TODO: Navigate to edit meeting component
     this.router.navigate(['/meetings', this.meeting?.id, 'edit']);
   }
 
@@ -139,61 +130,6 @@ export class MeetingDetailComponent implements OnInit {
     }
   }
 
-  createPost(): void {
-    if (this.postForm.valid && this.meeting) {
-      this.isPostLoading = true;
-
-      const request: CreatePostRequest = {
-        content: this.postForm.value.content,
-        meetingId: this.meeting.id
-      };
-
-      this.postsService.createPost(request).subscribe({
-        next: (post) => {
-          this.posts.unshift(post);
-          this.postForm.reset();
-          this.isPostLoading = false;
-        },
-        error: (error) => {
-          console.error('Error creating post:', error);
-          this.isPostLoading = false;
-        }
-      });
-    }
-  }
-
-  toggleComments(postId: string): void {
-    if (this.expandedPosts.has(postId)) {
-      this.expandedPosts.delete(postId);
-    } else {
-      this.expandedPosts.add(postId);
-    }
-  }
-
-  addComment(postId: string): void {
-    const content = this.newCommentContent[postId];
-    if (!content?.trim()) return;
-
-    const request: CreateCommentRequest = {
-      content: content.trim(),
-      postId: postId
-    };
-
-    this.postsService.createComment(request).subscribe({
-      next: (comment) => {
-        // Find the post and add the comment
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-          post.comments.push(comment);
-        }
-        this.newCommentContent[postId] = '';
-      },
-      error: (error: any) => {
-        console.error('Error creating comment:', error);
-      }
-    });
-  }
-
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -208,15 +144,6 @@ export class MeetingDetailComponent implements OnInit {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
-    });
-  }
-
-  formatPostDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
     });
   }
 }

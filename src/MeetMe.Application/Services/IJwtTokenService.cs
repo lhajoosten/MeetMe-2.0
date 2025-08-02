@@ -7,5 +7,5 @@ public interface IJwtTokenService
     string GenerateToken(User user);
     string GenerateRefreshToken();
     bool ValidateToken(string token);
-    Guid GetUserIdFromToken(string token);
+    int GetUserIdFromToken(string token);
 }

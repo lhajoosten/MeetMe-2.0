@@ -19,7 +19,7 @@ public class AttendancesController : ControllerBase
     }
 
     [HttpPost("join")]
-    public async Task<ActionResult<Guid>> JoinMeeting([FromBody] JoinMeetingCommand command)
+    public async Task<ActionResult<int>> JoinMeeting([FromBody] JoinMeetingCommand command)
     {
         var result = await _mediator.Send(command);
 

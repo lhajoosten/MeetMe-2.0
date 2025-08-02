@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Comments.DTOs;
 using MeetMe.Domain.Entities;
 
 namespace MeetMe.Application.Features.Comments.Commands.CreateComment;
@@ -9,7 +10,7 @@ namespace MeetMe.Application.Features.Comments.Commands.CreateComment;
 public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<CommentDto>>
 {
     private readonly ICommandRepository<Comment, int> _commentCommandRepository;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
     private readonly IQueryRepository<Post, int> _postQueryRepository;
     private readonly IQueryRepository<Comment, int> _commentQueryRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -17,7 +18,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
 
     public CreateCommentCommandHandler(
         ICommandRepository<Comment, int> commentCommandRepository,
-        IQueryRepository<User, Guid> userQueryRepository,
+        IQueryRepository<User, int> userQueryRepository,
         IQueryRepository<Post, int> postQueryRepository,
         IQueryRepository<Comment, int> commentQueryRepository,
         IUnitOfWork unitOfWork,
@@ -69,21 +70,10 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
             // Create the comment
             var comment = Comment.Create(request.Content, author, post, parentComment);
 
-            await _commentCommandRepository.AddAsync(comment, request.AuthorId.ToString(), cancellationToken);
-            await _unitOfWork.SaveChangesAsync(request.AuthorId.ToString(), cancellationToken);
+            await _commentCommandRepository.AddAsync(comment, request.AuthorId, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.AuthorId, cancellationToken);
 
-            var commentDto = new CommentDto
-            {
-                Id = comment.Id,
-                Content = comment.Content,
-                AuthorId = comment.AuthorId,
-                AuthorName = author.FullName,
-                PostId = comment.PostId,
-                ParentCommentId = comment.ParentCommentId,
-                IsActive = comment.IsActive,
-                CreatedDate = comment.CreatedDate,
-                LastModifiedDate = comment.LastModifiedDate
-            };
+            var commentDto = _mapper.Map<CommentDto>(comment);
 
             return Result.Success(commentDto);
         }

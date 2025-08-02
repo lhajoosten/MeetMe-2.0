@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Posts.DTOs;
 using MeetMe.Domain.Entities;
 
 namespace MeetMe.Application.Features.Posts.Commands.UpdatePost;
@@ -10,14 +11,14 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, Resul
 {
     private readonly ICommandRepository<Post, int> _postCommandRepository;
     private readonly IQueryRepository<Post, int> _postQueryRepository;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
     public UpdatePostCommandHandler(
         ICommandRepository<Post, int> postCommandRepository,
         IQueryRepository<Post, int> postQueryRepository,
-        IQueryRepository<User, Guid> userQueryRepository,
+        IQueryRepository<User, int> userQueryRepository,
         IUnitOfWork unitOfWork,
         IMapper mapper)
     {
@@ -55,8 +56,8 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, Resul
             // Update the post
             post.UpdateContent(request.Title, request.Content, user);
 
-            await _postCommandRepository.UpdateAsync(post, request.UserId.ToString(), cancellationToken);
-            await _unitOfWork.SaveChangesAsync(request.UserId.ToString(), cancellationToken);
+            await _postCommandRepository.UpdateAsync(post, request.UserId, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.UserId, cancellationToken);
 
             var postDto = _mapper.Map<PostDto>(post);
 

@@ -19,14 +19,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.Empty,
+            Id = 0,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -43,14 +43,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -67,14 +67,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = new string('a', 201), // 201 characters
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -91,14 +91,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -115,14 +115,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = new string('a', 2001), // 2001 characters
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -139,14 +139,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = default,
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -163,14 +163,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(-1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -187,14 +187,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = default,
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -212,14 +212,14 @@ public class UpdateMeetingCommandValidatorTests
         var startDate = DateTime.Now.AddDays(1);
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = startDate,
             EndDateTime = startDate.AddHours(-1), // End before start
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -236,14 +236,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -260,14 +260,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = new string('a', 501), // 501 characters
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -284,14 +284,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 0,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -308,14 +308,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = -1,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -332,14 +332,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 1001,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -356,14 +356,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.Empty
+            OrganizerId = 0
         };
 
         // Act
@@ -380,14 +380,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -406,14 +406,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = "Valid Title",
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = maxAttendees,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act
@@ -432,14 +432,14 @@ public class UpdateMeetingCommandValidatorTests
         // Arrange
         var command = new UpdateMeetingCommand
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Title = new string('a', titleLength),
             Description = "Valid Description",
             StartDateTime = DateTime.Now.AddDays(1),
             EndDateTime = DateTime.Now.AddDays(1).AddHours(2),
             Location = "Valid Location",
             MaxAttendees = 10,
-            OrganizerId = Guid.NewGuid()
+            OrganizerId = 1
         };
 
         // Act

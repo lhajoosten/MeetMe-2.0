@@ -19,8 +19,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Meeting Notes",
             "Here are the key points from today's meeting: 1. Project timeline updated 2. New requirements discussed",
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -40,8 +40,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             title,
             "Valid content for the post",
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -60,8 +60,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             longTitle,
             "Valid content for the post",
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -80,8 +80,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             maxTitle,
             "Valid content for the post",
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -100,8 +100,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Valid Title",
             content,
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -120,8 +120,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Valid Title",
             longContent,
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -140,8 +140,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Valid Title",
             maxContent,
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -157,8 +157,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Valid Title",
             "Valid content for the post",
-            Guid.Empty,
-            Guid.NewGuid());
+            0,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -176,8 +176,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Valid Title",
             "Valid content for the post",
-            Guid.NewGuid(),
-            Guid.Empty);
+            1,
+            0);
 
         // Act
         var result = _validator.Validate(command);
@@ -192,8 +192,8 @@ public class CreatePostCommandValidatorTests
     public void Validate_WithValidGuids_ShouldPass()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var authorId = Guid.NewGuid();
+        var meetingId = 1;
+        var authorId = 1;
         var command = new CreatePostCommand(
             "Valid Title",
             "Valid content for the post",
@@ -215,8 +215,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "", // Invalid title
             "", // Invalid content
-            Guid.Empty, // Invalid meeting ID
-            Guid.Empty); // Invalid author ID
+            0, // Invalid meeting ID
+            0); // Invalid author ID
 
         // Act
         var result = _validator.Validate(command);
@@ -240,8 +240,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             title,
             "Valid content for the post",
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -260,8 +260,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Valid Title",
             content,
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -277,8 +277,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Meeting Notes - Q3 Planning & Review (2024)",
             "Valid content for the post",
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -309,8 +309,8 @@ public class CreatePostCommandValidatorTests
         var command = new CreatePostCommand(
             "Weekly Team Meeting",
             formattedContent,
-            Guid.NewGuid(),
-            Guid.NewGuid());
+            1,
+            1);
 
         // Act
         var result = _validator.Validate(command);

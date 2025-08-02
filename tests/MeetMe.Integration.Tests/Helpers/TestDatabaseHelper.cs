@@ -88,8 +88,8 @@ public class TestDatabaseHelper : IDisposable
         var context = Context;
 
         // Create test roles first - let SQL Server auto-generate IDs
-        var memberRole = new Role { Name = "Member", NormalizedName = "MEMBER" };
-        var adminRole = new Role { Name = "Admin", NormalizedName = "ADMIN" };
+        var memberRole = new Role { Name = "Member" };
+        var adminRole = new Role { Name = "Admin" };
         
         context.Roles.AddRange(memberRole, adminRole);
         await context.SaveChangesAsync();

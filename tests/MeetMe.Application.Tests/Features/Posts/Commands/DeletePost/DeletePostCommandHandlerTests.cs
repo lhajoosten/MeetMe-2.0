@@ -30,7 +30,7 @@ public class DeletePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new DeletePostCommand(postId, userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -57,11 +57,11 @@ public class DeletePostCommandHandlerTests
             .ReturnsAsync(post);
 
         _mockPostCommandRepository
-            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -72,11 +72,11 @@ public class DeletePostCommandHandlerTests
         result.Value.Should().BeTrue();
 
         _mockPostCommandRepository.Verify(
-            x => x.SoftDeleteAsync(post, userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SoftDeleteAsync(post, userId, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(userId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -85,7 +85,7 @@ public class DeletePostCommandHandlerTests
     {
         // Arrange
         var postId = 999;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new DeletePostCommand(postId, userId);
 
         _mockPostQueryRepository
@@ -100,11 +100,11 @@ public class DeletePostCommandHandlerTests
         result.Error.Should().Be("Post not found");
 
         _mockPostCommandRepository.Verify(
-            x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -113,8 +113,8 @@ public class DeletePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
-        var differentUserId = Guid.NewGuid();
+        var userId = 1;
+        var differentUserId = 2;
         var command = new DeletePostCommand(postId, differentUserId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -148,11 +148,11 @@ public class DeletePostCommandHandlerTests
         result.Error.Should().Be("You don't have permission to delete this post");
 
         _mockPostCommandRepository.Verify(
-            x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -161,7 +161,7 @@ public class DeletePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new DeletePostCommand(postId, userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -188,7 +188,7 @@ public class DeletePostCommandHandlerTests
             .ReturnsAsync(post);
 
         _mockPostCommandRepository
-            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
@@ -205,7 +205,7 @@ public class DeletePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new DeletePostCommand(postId, userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -232,11 +232,11 @@ public class DeletePostCommandHandlerTests
             .ReturnsAsync(post);
 
         _mockPostCommandRepository
-            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Save changes failed"));
 
         // Act
@@ -253,7 +253,7 @@ public class DeletePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new DeletePostCommand(postId, userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -280,11 +280,11 @@ public class DeletePostCommandHandlerTests
             .ReturnsAsync(post);
 
         _mockPostCommandRepository
-            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -294,11 +294,11 @@ public class DeletePostCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
 
         _mockPostCommandRepository.Verify(
-            x => x.SoftDeleteAsync(It.IsAny<Post>(), userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SoftDeleteAsync(It.IsAny<Post>(), userId, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(userId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -307,7 +307,7 @@ public class DeletePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new DeletePostCommand(postId, userId);
         var cancellationToken = new CancellationToken(true);
 
@@ -335,11 +335,11 @@ public class DeletePostCommandHandlerTests
             .ReturnsAsync(post);
 
         _mockPostCommandRepository
-            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.SoftDeleteAsync(It.IsAny<Post>(), It.IsAny<int>(), cancellationToken))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(1);
 
         // Act
@@ -353,11 +353,11 @@ public class DeletePostCommandHandlerTests
             Times.Once);
 
         _mockPostCommandRepository.Verify(
-            x => x.SoftDeleteAsync(post, userId.ToString(), cancellationToken),
+            x => x.SoftDeleteAsync(post, userId, cancellationToken),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(userId.ToString(), cancellationToken),
+            x => x.SaveChangesAsync(userId, cancellationToken),
             Times.Once);
     }
 }

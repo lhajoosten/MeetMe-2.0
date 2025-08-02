@@ -6,8 +6,8 @@ namespace MeetMe.Domain.Entities
 {
     public class Attendance : BaseEntity
     {
-        public Guid UserId { get; private set; }
-        public Guid MeetingId { get; private set; }
+        public int UserId { get; private set; }
+        public int MeetingId { get; private set; }
         public AttendanceStatus Status { get; private set; } = AttendanceStatus.Confirmed;
         public DateTime JoinedAt { get; private set; }
 
@@ -43,7 +43,7 @@ namespace MeetMe.Domain.Entities
 
             Status = status;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id.ToString();
+            LastModifiedByUserId = user.Id;
         }
 
         public void Leave(User user)
@@ -52,7 +52,7 @@ namespace MeetMe.Domain.Entities
 
             IsActive = false;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id.ToString();
+            LastModifiedByUserId = user.Id;
 
             AddDomainEvent(new UserLeftMeetingEvent(this));
         }

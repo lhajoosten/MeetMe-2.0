@@ -1,24 +1,24 @@
-﻿using MediatR;
+using MediatR;
 using MeetMe.Application.Common.Models;
 
 namespace MeetMe.Application.Common.Abstraction
 {
     /// <summary>
-    /// Interface for command handlers that don't return a value
+    /// Handler for commands with response
     /// </summary>
-    /// <typeparam name="TCommand">The type of the command</typeparam>
-    public interface ICommandHandler<TCommand> : IRequestHandler<TCommand, Result>
-        where TCommand : ICommand
+    /// <typeparam name="TCommand">The command type</typeparam>
+    /// <typeparam name="TResponse">The response type</typeparam>
+    public interface ICommandHandler<in TCommand, TResponse> : IRequestHandler<TCommand, Result<TResponse>>
+        where TCommand : ICommand<TResponse>
     {
     }
 
     /// <summary>
-    /// Interface for command handlers that return a value
+    /// Handler for commands without response
     /// </summary>
-    /// <typeparam name="TCommand">The type of the command</typeparam>
-    /// <typeparam name="TResponse">The type of the response</typeparam>
-    public interface ICommandHandler<TCommand, TResponse> : IRequestHandler<TCommand, Result<TResponse>>
-        where TCommand : ICommand<TResponse>
+    /// <typeparam name="TCommand">The command type</typeparam>
+    public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand, Result<MediatR.Unit>>
+        where TCommand : ICommand
     {
     }
 }

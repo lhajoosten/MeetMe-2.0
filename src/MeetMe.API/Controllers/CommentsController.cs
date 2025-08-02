@@ -4,7 +4,7 @@ using MeetMe.Application.Features.Comments.Commands.DeleteComment;
 using MeetMe.Application.Features.Comments.Commands.UpdateComment;
 using MeetMe.Application.Features.Comments.Queries.GetComment;
 using MeetMe.Application.Features.Comments.Queries.GetCommentsByPost;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Comments.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -24,7 +24,7 @@ public class CommentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CommentDto>> CreateComment([FromBody] CreateCommentRequest request)
+    public async Task<ActionResult<CommentDto>> CreateComment([FromBody] CreateCommentDto request)
     {
         var userId = GetCurrentUserId();
         var command = new CreateCommentCommand(
@@ -75,7 +75,7 @@ public class CommentsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateComment(int id, [FromBody] UpdateCommentRequest request)
+    public async Task<ActionResult> UpdateComment(int id, [FromBody] UpdateCommentDto request)
     {
         var userId = GetCurrentUserId();
         var command = new UpdateCommentCommand(id, request.Content, userId);
@@ -106,23 +106,13 @@ public class CommentsController : ControllerBase
         return NoContent();
     }
 
-    private Guid GetCurrentUserId()
+    private int GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
             throw new UnauthorizedAccessException("Invalid user ID in token");
         }
         return userId;
     }
 }
-
-public record CreateCommentRequest(
-    string Content,
-    int PostId,
-    int? ParentCommentId = null
-);
-
-public record UpdateCommentRequest(
-    string Content
-);

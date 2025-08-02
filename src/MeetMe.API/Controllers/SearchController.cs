@@ -5,9 +5,9 @@ using MeetMe.Application.Features.Search.Queries.SearchPosts;
 using MeetMe.Application.Features.Search.Queries.SearchUsers;
 using MeetMe.Application.Features.Search.Queries.GetSearchSuggestions;
 using MeetMe.Application.Features.Search.Queries.GetPopularSearchTerms;
-using MeetMe.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MeetMe.Application.Features.Search.DTOs;
 
 namespace MeetMe.API.Controllers;
 

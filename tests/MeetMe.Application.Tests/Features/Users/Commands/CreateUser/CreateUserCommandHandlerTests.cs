@@ -9,18 +9,18 @@ namespace MeetMe.Application.Tests.Features.Users.Commands.CreateUser;
 public class CreateUserCommandHandlerTests
 {
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-    private readonly Mock<IQueryRepository<User, Guid>> _userQueryRepositoryMock;
-    private readonly Mock<ICommandRepository<User, Guid>> _userCommandRepositoryMock;
+    private readonly Mock<IQueryRepository<User, int>> _userQueryRepositoryMock;
+    private readonly Mock<ICommandRepository<User, int>> _userCommandRepositoryMock;
     private readonly CreateUserCommandHandler _handler;
 
     public CreateUserCommandHandlerTests()
     {
         _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _userQueryRepositoryMock = new Mock<IQueryRepository<User, Guid>>();
-        _userCommandRepositoryMock = new Mock<ICommandRepository<User, Guid>>();
-        
+        _userQueryRepositoryMock = new Mock<IQueryRepository<User, int>>();
+        _userCommandRepositoryMock = new Mock<ICommandRepository<User, int>>();
+
         _unitOfWorkMock
-            .Setup(x => x.CommandRepository<User, Guid>())
+            .Setup(x => x.CommandRepository<User, int>())
             .Returns(_userCommandRepositoryMock.Object);
 
         _handler = new CreateUserCommandHandler(
@@ -47,11 +47,11 @@ public class CreateUserCommandHandlerTests
             .ReturnsAsync((User?)null);
 
         _userCommandRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User user, string userId, CancellationToken ct) => user);
 
         _unitOfWorkMock
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -60,8 +60,7 @@ public class CreateUserCommandHandlerTests
         // Assert
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeEmpty();
-
+        
         _userQueryRepositoryMock.Verify(
             x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<System.Func<User, bool>>>(),
@@ -70,16 +69,16 @@ public class CreateUserCommandHandlerTests
 
         _userCommandRepositoryMock.Verify(
             x => x.AddAsync(
-                It.Is<User>(u => 
+                It.Is<User>(u =>
                     u.FirstName == command.FirstName &&
                     u.LastName == command.LastName &&
                     u.Email.Value == command.Email),
-                "System",
+                0,
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync("System", It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(0, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -117,11 +116,11 @@ public class CreateUserCommandHandlerTests
             Times.Once);
 
         _userCommandRepositoryMock.Verify(
-            x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -143,7 +142,7 @@ public class CreateUserCommandHandlerTests
             .ReturnsAsync((User?)null);
 
         _userCommandRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Database connection failed"));
 
         // Act
@@ -174,11 +173,11 @@ public class CreateUserCommandHandlerTests
             .ReturnsAsync((User?)null);
 
         _userCommandRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User user, string userId, CancellationToken ct) => user);
 
         _unitOfWorkMock
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Transaction failed"));
 
         // Act
@@ -211,11 +210,11 @@ public class CreateUserCommandHandlerTests
             .ReturnsAsync((User?)null);
 
         _userCommandRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), cancellationToken))
             .ReturnsAsync((User user, string userId, CancellationToken ct) => user);
 
         _unitOfWorkMock
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(1);
 
         // Act
@@ -232,11 +231,11 @@ public class CreateUserCommandHandlerTests
             Times.Once);
 
         _userCommandRepositoryMock.Verify(
-            x => x.AddAsync(It.IsAny<User>(), "System", cancellationToken),
+            x => x.AddAsync(It.IsAny<User>(), 0, cancellationToken),
             Times.Once);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync("System", cancellationToken),
+            x => x.SaveChangesAsync(0, cancellationToken),
             Times.Once);
     }
 
@@ -262,11 +261,11 @@ public class CreateUserCommandHandlerTests
             .ReturnsAsync((User?)null);
 
         _userCommandRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User user, string userId, CancellationToken ct) => user);
 
         _unitOfWorkMock
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -275,15 +274,14 @@ public class CreateUserCommandHandlerTests
         // Assert
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeEmpty();
 
         _userCommandRepositoryMock.Verify(
             x => x.AddAsync(
-                It.Is<User>(u => 
+                It.Is<User>(u =>
                     u.FirstName == firstName &&
                     u.LastName == lastName &&
                     u.Email.Value == email),
-                "System",
+                0,
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -307,11 +305,11 @@ public class CreateUserCommandHandlerTests
             .ReturnsAsync((User?)null);
 
         _userCommandRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User user, string userId, CancellationToken ct) => user);
 
         _unitOfWorkMock
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -320,7 +318,6 @@ public class CreateUserCommandHandlerTests
         // Assert
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -350,7 +347,7 @@ public class CreateUserCommandHandlerTests
         result.Error.Should().Contain("Query execution failed");
 
         _userCommandRepositoryMock.Verify(
-            x => x.AddAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 }

@@ -1,0 +1,149 @@
+<div class="edit-meeting-container">
+  <div class="edit-meeting-card">
+    <div class="header">
+      <button class="btn-back" (click)="goBack()">
+        <app-icon name="arrow-left"></app-icon> Back to Meeting
+      </button>
+      <h2>Edit Meeting</h2>
+      <p class="subtitle">Update meeting information</p>
+    </div>
+
+    <div class="loading" *ngIf="isLoading && !meeting">
+      <p>Loading meeting details...</p>
+    </div>
+
+    <form [formGroup]="meetingForm" (ngSubmit)="onSubmit()" *ngIf="meeting">
+      <div class="form-group">
+        <label for="title">Meeting Title</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          class="form-control"
+          [class.error]="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched"
+          placeholder="Enter meeting title"
+        />
+        <div class="error-message" *ngIf="meetingForm.get('title')?.invalid && meetingForm.get('title')?.touched">
+          <small *ngIf="meetingForm.get('title')?.errors?.['required']">Meeting title is required</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-control"
+          [class.error]="meetingForm.get('description')?.invalid && meetingForm.get('description')?.touched"
+          placeholder="Describe the meeting purpose and agenda"
+          rows="4"
+        ></textarea>
+        <div class="error-message" *ngIf="meetingForm.get('description')?.invalid && meetingForm.get('description')?.touched">
+          <small *ngIf="meetingForm.get('description')?.errors?.['required']">Description is required</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input
+          id="location"
+          type="text"
+          formControlName="location"
+          class="form-control"
+          [class.error]="meetingForm.get('location')?.invalid && meetingForm.get('location')?.touched"
+          placeholder="Meeting location or online link"
+        />
+        <div class="error-message" *ngIf="meetingForm.get('location')?.invalid && meetingForm.get('location')?.touched">
+          <small *ngIf="meetingForm.get('location')?.errors?.['required']">Location is required</small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate">Start Date & Time</label>
+          <input
+            id="startDate"
+            type="datetime-local"
+            formControlName="startDate"
+            class="form-control"
+            [class.error]="meetingForm.get('startDate')?.invalid && meetingForm.get('startDate')?.touched"
+          />
+          <div class="error-message" *ngIf="meetingForm.get('startDate')?.invalid && meetingForm.get('startDate')?.touched">
+            <small *ngIf="meetingForm.get('startDate')?.errors?.['required']">Start date is required</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">End Date & Time</label>
+          <input
+            id="endDate"
+            type="datetime-local"
+            formControlName="endDate"
+            class="form-control"
+            [class.error]="meetingForm.get('endDate')?.invalid && meetingForm.get('endDate')?.touched"
+          />
+          <div class="error-message" *ngIf="meetingForm.get('endDate')?.invalid && meetingForm.get('endDate')?.touched">
+            <small *ngIf="meetingForm.get('endDate')?.errors?.['required']">End date is required</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="maxAttendees">Max Attendees (Optional)</label>
+          <input
+            id="maxAttendees"
+            type="number"
+            formControlName="maxAttendees"
+            class="form-control"
+            placeholder="Leave empty for unlimited"
+            min="1"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-container">
+            <input
+              type="checkbox"
+              formControlName="isPublic"
+              class="checkbox"
+            />
+            <span class="checkmark"></span>
+            Make this meeting public
+          </label>
+          <small class="form-help">Public meetings can be found and joined by anyone</small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="deleteMeeting()"
+        >
+          Delete Meeting
+        </button>
+        <div class="action-group">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="goBack()"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="meetingForm.invalid || isLoading"
+          >
+            {{ isLoading ? 'Updating...' : 'Update Meeting' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <small>{{ errorMessage }}</small>
+      </div>
+    </form>
+  </div>
+</div>

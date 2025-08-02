@@ -1,4 +1,4 @@
-using MediatR;
+using MeetMe.Application.Common.Abstraction;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
 using MeetMe.Domain.Entities;
@@ -6,20 +6,20 @@ using MeetMe.Domain.ValueObjects;
 
 namespace MeetMe.Application.Features.Users.Commands.CreateUser;
 
-public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Result<Guid>>
+public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, int>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
 
     public CreateUserCommandHandler(
         IUnitOfWork unitOfWork,
-        IQueryRepository<User, Guid> userQueryRepository)
+        IQueryRepository<User, int> userQueryRepository)
     {
         _unitOfWork = unitOfWork;
         _userQueryRepository = userQueryRepository;
     }
 
-    public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -29,7 +29,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Resul
 
             if (existingUser != null)
             {
-                return Result.Failure<Guid>("A user with this email already exists");
+                return Result.Failure<int>("A user with this email already exists");
             }
 
             // Create the user using domain factory method
@@ -39,17 +39,17 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Resul
                 request.Email);
 
             // Add to repository
-            var userRepository = _unitOfWork.CommandRepository<User, Guid>();
-            await userRepository.AddAsync(user, "System", cancellationToken);
+            var userRepository = _unitOfWork.CommandRepository<User, int>();
+            await userRepository.AddAsync(user, user.Id, cancellationToken);
 
             // Save changes
-            await _unitOfWork.SaveChangesAsync("System", cancellationToken);
+            await _unitOfWork.SaveChangesAsync(user.Id, cancellationToken);
 
             return Result.Success(user.Id);
         }
         catch (Exception ex)
         {
-            return Result.Failure<Guid>($"Failed to create user: {ex.Message}");
+            return Result.Failure<int>($"Failed to create user: {ex.Message}");
         }
     }
 }

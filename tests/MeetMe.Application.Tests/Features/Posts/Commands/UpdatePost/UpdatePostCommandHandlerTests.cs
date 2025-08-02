@@ -1,8 +1,8 @@
 using AutoMapper;
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
-using MeetMe.Application.Common.Models;
 using MeetMe.Application.Features.Posts.Commands.UpdatePost;
+using MeetMe.Application.Features.Posts.DTOs;
 using MeetMe.Domain.Entities;
 using Moq;
 
@@ -12,7 +12,7 @@ public class UpdatePostCommandHandlerTests
 {
     private readonly Mock<ICommandRepository<Post, int>> _mockPostCommandRepository;
     private readonly Mock<IQueryRepository<Post, int>> _mockPostQueryRepository;
-    private readonly Mock<IQueryRepository<User, Guid>> _mockUserQueryRepository;
+    private readonly Mock<IQueryRepository<User, int>> _mockUserQueryRepository;
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<IMapper> _mockMapper;
     private readonly UpdatePostCommandHandler _handler;
@@ -21,7 +21,7 @@ public class UpdatePostCommandHandlerTests
     {
         _mockPostCommandRepository = new Mock<ICommandRepository<Post, int>>();
         _mockPostQueryRepository = new Mock<IQueryRepository<Post, int>>();
-        _mockUserQueryRepository = new Mock<IQueryRepository<User, Guid>>();
+        _mockUserQueryRepository = new Mock<IQueryRepository<User, int>>();
         _mockUnitOfWork = new Mock<IUnitOfWork>();
         _mockMapper = new Mock<IMapper>();
 
@@ -38,7 +38,7 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -75,11 +75,11 @@ public class UpdatePostCommandHandlerTests
             .ReturnsAsync(author);
 
         _mockPostCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         _mockMapper
@@ -97,11 +97,11 @@ public class UpdatePostCommandHandlerTests
         result.Value.AuthorId.Should().Be(userId);
 
         _mockPostCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Post>(), userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Post>(), userId, It.IsAny<CancellationToken>()),
             Times.Once);
         
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(userId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -110,7 +110,7 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 999;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         _mockPostQueryRepository
@@ -125,15 +125,15 @@ public class UpdatePostCommandHandlerTests
         result.Error.Should().Be("Post not found");
 
         _mockUserQueryRepository.Verify(
-            x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
         
         _mockPostCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
         
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -142,7 +142,7 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -171,11 +171,11 @@ public class UpdatePostCommandHandlerTests
         result.Error.Should().Be("User not found");
 
         _mockPostCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
         
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -184,8 +184,8 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
-        var differentUserId = Guid.NewGuid();
+        var userId = 1;
+        var differentUserId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -221,11 +221,11 @@ public class UpdatePostCommandHandlerTests
         result.Error.Should().Be("You don't have permission to update this post");
 
         _mockPostCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
         
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -234,7 +234,7 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -261,7 +261,7 @@ public class UpdatePostCommandHandlerTests
             .ReturnsAsync(author);
 
         _mockPostCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database error"));
 
         // Act
@@ -273,7 +273,7 @@ public class UpdatePostCommandHandlerTests
         result.Error.Should().Contain("Database error");
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -282,7 +282,7 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -309,11 +309,11 @@ public class UpdatePostCommandHandlerTests
             .ReturnsAsync(author);
 
         _mockPostCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Save changes failed"));
 
         // Act
@@ -330,7 +330,7 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -369,11 +369,11 @@ public class UpdatePostCommandHandlerTests
             .ReturnsAsync(author);
 
         _mockPostCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         _mockMapper
@@ -394,7 +394,7 @@ public class UpdatePostCommandHandlerTests
     {
         // Arrange
         var postId = 1;
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(postId, "Updated Title", "Updated Content", userId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -423,11 +423,11 @@ public class UpdatePostCommandHandlerTests
             .ReturnsAsync(author);
 
         _mockPostCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Post>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         _mockMapper
@@ -439,11 +439,11 @@ public class UpdatePostCommandHandlerTests
 
         // Assert
         _mockPostCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Post>(), userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Post>(), userId, It.IsAny<CancellationToken>()),
             Times.Once);
         
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(userId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(userId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 }

@@ -23,7 +23,7 @@ namespace MeetMe.Infrastructure.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<T> AddAsync(T entity, string userId, CancellationToken cancellationToken = default)
+        public async Task<T> AddAsync(T entity, int userId, CancellationToken cancellationToken = default)
         {
             entity.CreatedByUserId = userId;
             entity.CreatedDate = DateTime.UtcNow;
@@ -32,7 +32,7 @@ namespace MeetMe.Infrastructure.Repositories
             return result.Entity;
         }
 
-        public Task UpdateAsync(T entity, string userId, CancellationToken cancellationToken = default)
+        public Task UpdateAsync(T entity, int userId, CancellationToken cancellationToken = default)
         {
             entity.LastModifiedByUserId = userId;
             entity.LastModifiedDate = DateTime.UtcNow;
@@ -57,7 +57,7 @@ namespace MeetMe.Infrastructure.Repositories
             return true;
         }
 
-        public Task SoftDeleteAsync(T entity, string userId, CancellationToken cancellationToken = default)
+        public Task SoftDeleteAsync(T entity, int userId, CancellationToken cancellationToken = default)
         {
             // Assuming entities have an IsActive property for soft delete
             if (entity is BaseEntity baseEntity)

@@ -1,0 +1,157 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <!-- Brand/Logo -->
+    <div class="nav-brand">
+      <a routerLink="/" class="brand-link">
+        <span class="brand-text">MeetMe</span>
+      </a>
+    </div>
+
+    <!-- Search Bar (Desktop) -->
+    <div class="search-container" *ngIf="currentUser">
+      <div class="search-input-group">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search meetings..."
+          [(ngModel)]="searchQuery"
+          (keypress)="onSearchKeypress($event)"
+        />
+        <button class="search-btn" (click)="onSearch()" [disabled]="!searchQuery.trim()">
+          <app-icon name="search" [size]="16"></app-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <div class="nav-menu" *ngIf="currentUser">
+      <a
+        routerLink="/meetings"
+        class="nav-link"
+        [class.active]="isActive('/meetings')"
+      >
+        Meetings
+      </a>
+      <a
+        routerLink="/meetings/create"
+        class="nav-link"
+        [class.active]="isActive('/meetings/create')"
+      >
+        Create Meeting
+      </a>
+    </div>
+
+    <!-- User Profile (Desktop) -->
+    <div class="user-section" *ngIf="currentUser">
+      <!-- Notifications -->
+      <app-notifications></app-notifications>
+
+      <div class="user-menu">
+        <div class="user-profile" (click)="toggleProfileMenu()">
+          <img
+            class="user-avatar"
+            [src]="currentUser.profilePictureUrl || '/assets/default-avatar.svg'"
+            [alt]="currentUser.firstName + ' ' + currentUser.lastName"
+          />
+          <span class="user-name">{{ currentUser.firstName }}</span>
+          <app-icon name="chevron-down" [size]="12" [cssClass]="isProfileMenuOpen ? 'rotated' : ''"></app-icon>
+        </div>
+
+        <div class="profile-dropdown" [class.open]="isProfileMenuOpen">
+          <a class="dropdown-item" (click)="navigateToProfile()">
+            <app-icon name="user" [size]="16"></app-icon>
+            Profile
+          </a>
+          <a class="dropdown-item" routerLink="/users/change-password" (click)="closeMenus()">
+            <app-icon name="key" [size]="16"></app-icon>
+            Change Password
+          </a>
+          <hr class="dropdown-divider">
+          <a class="dropdown-item logout" (click)="logout()">
+            <app-icon name="logout" [size]="16"></app-icon>
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Links (When not logged in) -->
+    <div class="auth-links" *ngIf="!currentUser">
+      <a routerLink="/auth/login" class="nav-link">Login</a>
+      <a routerLink="/auth/register" class="nav-link btn-primary">Sign Up</a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" (click)="toggleMenu()" *ngIf="currentUser">
+      <span class="hamburger-line" [class.active]="isMenuOpen"></span>
+      <span class="hamburger-line" [class.active]="isMenuOpen"></span>
+      <span class="hamburger-line" [class.active]="isMenuOpen"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" [class.open]="isMenuOpen" *ngIf="currentUser">
+    <!-- Mobile Search -->
+    <div class="mobile-search">
+      <div class="search-input-group">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search meetings..."
+          [(ngModel)]="searchQuery"
+          (keypress)="onSearchKeypress($event)"
+        />
+        <button class="search-btn" (click)="onSearch()" [disabled]="!searchQuery.trim()">
+          <app-icon name="search" [size]="16"></app-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Links -->
+    <div class="mobile-nav-links">
+      <a
+        routerLink="/meetings"
+        class="mobile-nav-link"
+        (click)="closeMenus()"
+        [class.active]="isActive('/meetings')"
+      >
+        <app-icon name="calendar" [size]="20"></app-icon>
+        Meetings
+      </a>
+      <a
+        routerLink="/meetings/create"
+        class="mobile-nav-link"
+        (click)="closeMenus()"
+        [class.active]="isActive('/meetings/create')"
+      >
+        <app-icon name="plus" [size]="20"></app-icon>
+        Create Meeting
+      </a>
+      <a
+        class="mobile-nav-link"
+        (click)="navigateToProfile()"
+      >
+        <app-icon name="user" [size]="20"></app-icon>
+        Profile
+      </a>
+      <a
+        routerLink="/users/change-password"
+        class="mobile-nav-link"
+        (click)="closeMenus()"
+      >
+        <app-icon name="key" [size]="20"></app-icon>
+        Change Password
+      </a>
+      <a
+        class="mobile-nav-link logout"
+        (click)="logout()"
+      >
+        <app-icon name="logout" [size]="20"></app-icon>
+        Logout
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Overlay for mobile menu -->
+<div class="mobile-overlay" [class.active]="isMenuOpen || isProfileMenuOpen" (click)="closeMenus()"></div>

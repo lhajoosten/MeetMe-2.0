@@ -5,6 +5,6 @@ namespace MeetMe.Application.Features.Attendances.Commands.LeaveMeeting;
 
 public record LeaveMeetingCommand : IRequest<Result<Unit>>
 {
-    public Guid MeetingId { get; init; }
-    public Guid UserId { get; init; }
+    public int MeetingId { get; init; }
+    public int UserId { get; init; }
 }

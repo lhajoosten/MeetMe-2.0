@@ -21,7 +21,7 @@ namespace MeetMe.Domain.Common
         /// <summary>
         /// Audit information - ID of the user who created this entity
         /// </summary>
-        public string? CreatedByUserId { get; set; }
+        public int? CreatedByUserId { get; set; }
 
         /// <summary>
         /// Audit information - last modification date
@@ -31,7 +31,7 @@ namespace MeetMe.Domain.Common
         /// <summary>
         /// Audit information - ID of the user who last modified this entity
         /// </summary>
-        public string? LastModifiedByUserId { get; set; }
+        public int? LastModifiedByUserId { get; set; }
 
         /// <summary>
         /// Indicates if the entity is active (soft delete)
@@ -42,7 +42,7 @@ namespace MeetMe.Domain.Common
         /// Updates the last modified auditing information  
         /// </summary>
         /// <param name="userId">ID of the user performing the update</param>
-        protected void UpdateModifiedInfo(string userId)
+        protected void UpdateModifiedInfo(int userId)
         {
             LastModifiedDate = DateTime.UtcNow;
             LastModifiedByUserId = userId;

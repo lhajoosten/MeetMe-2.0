@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using MeetMe.Application.Common.Behaviors;
+using MeetMe.Application.Common.Mappings;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -18,10 +19,10 @@ namespace MeetMe.Application
             // Add FluentValidation
             services.AddValidatorsFromAssembly(assembly);
 
-            // Add AutoMapper
+            // Add AutoMapper with automatic profile discovery
             services.AddAutoMapper(cfg => 
             {
-                // Add profiles from this assembly
+                cfg.AddProfile<MappingProfile>();
             }, Assembly.GetExecutingAssembly());
 
             // Add MediatR Pipeline Behaviors

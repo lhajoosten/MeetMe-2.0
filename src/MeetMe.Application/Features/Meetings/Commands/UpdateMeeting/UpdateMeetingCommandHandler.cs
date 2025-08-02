@@ -10,13 +10,13 @@ namespace MeetMe.Application.Features.Meetings.Commands.UpdateMeeting;
 public class UpdateMeetingCommandHandler : IRequestHandler<UpdateMeetingCommand, Result<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IQueryRepository<Meeting, Guid> _meetingQueryRepository;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<Meeting, int> _meetingQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
 
     public UpdateMeetingCommandHandler(
         IUnitOfWork unitOfWork, 
-        IQueryRepository<Meeting, Guid> meetingQueryRepository,
-        IQueryRepository<User, Guid> userQueryRepository)
+        IQueryRepository<Meeting, int> meetingQueryRepository,
+        IQueryRepository<User, int> userQueryRepository)
     {
         _unitOfWork = unitOfWork;
         _meetingQueryRepository = meetingQueryRepository;
@@ -52,9 +52,9 @@ public class UpdateMeetingCommandHandler : IRequestHandler<UpdateMeetingCommand,
                 request.EndDateTime,
                 organizer);
 
-            var meetingRepository = _unitOfWork.CommandRepository<Meeting, Guid>();
-            await meetingRepository.UpdateAsync(meeting, request.OrganizerId.ToString(), cancellationToken);
-            await _unitOfWork.SaveChangesAsync(request.OrganizerId.ToString(), cancellationToken);
+            var meetingRepository = _unitOfWork.CommandRepository<Meeting, int>();
+            await meetingRepository.UpdateAsync(meeting, request.OrganizerId, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.OrganizerId, cancellationToken);
 
             return Result.Success(Unit.Value);
         }

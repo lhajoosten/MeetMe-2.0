@@ -37,7 +37,6 @@ public class MeetingTests
         meeting.CreatorId.Should().Be(creator.Id);
         meeting.MaxAttendees.Should().BeNull();
         meeting.IsActive.Should().BeTrue();
-        meeting.Id.Should().NotBe(Guid.Empty);
     }
 
     [Fact]
@@ -155,7 +154,7 @@ public class MeetingTests
         meeting.Location.Value.Should().Be(newLocation);
         meeting.MeetingDateTime.StartDateTime.Should().Be(newStartDateTime);
         meeting.MeetingDateTime.EndDateTime.Should().Be(newEndDateTime);
-        meeting.LastModifiedByUserId.Should().Be(updatingUser.Id.ToString());
+        meeting.LastModifiedByUserId.Should().Be(updatingUser.Id);
         meeting.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
     }
 
@@ -234,7 +233,7 @@ public class MeetingTests
 
         // Assert
         meeting.IsActive.Should().BeFalse();
-        meeting.LastModifiedByUserId.Should().Be(cancellingUser.Id.ToString());
+        meeting.LastModifiedByUserId.Should().Be(cancellingUser.Id);
         meeting.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
     }
 

@@ -12,20 +12,20 @@ namespace MeetMe.Application.Tests.Features.Meetings.Commands.UpdateMeeting;
 public class UpdateMeetingCommandHandlerTests
 {
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-    private readonly Mock<IQueryRepository<Meeting, Guid>> _mockMeetingQueryRepository;
-    private readonly Mock<IQueryRepository<User, Guid>> _mockUserQueryRepository;
-    private readonly Mock<ICommandRepository<Meeting, Guid>> _mockMeetingCommandRepository;
+    private readonly Mock<IQueryRepository<Meeting, int>> _mockMeetingQueryRepository;
+    private readonly Mock<IQueryRepository<User, int>> _mockUserQueryRepository;
+    private readonly Mock<ICommandRepository<Meeting, int>> _mockMeetingCommandRepository;
     private readonly UpdateMeetingCommandHandler _handler;
 
     public UpdateMeetingCommandHandlerTests()
     {
         _mockUnitOfWork = new Mock<IUnitOfWork>();
-        _mockMeetingQueryRepository = new Mock<IQueryRepository<Meeting, Guid>>();
-        _mockUserQueryRepository = new Mock<IQueryRepository<User, Guid>>();
-        _mockMeetingCommandRepository = new Mock<ICommandRepository<Meeting, Guid>>();
+        _mockMeetingQueryRepository = new Mock<IQueryRepository<Meeting, int>>();
+        _mockUserQueryRepository = new Mock<IQueryRepository<User, int>>();
+        _mockMeetingCommandRepository = new Mock<ICommandRepository<Meeting, int>>();
 
         _mockUnitOfWork
-            .Setup(x => x.CommandRepository<Meeting, Guid>())
+            .Setup(x => x.CommandRepository<Meeting, int>())
             .Returns(_mockMeetingCommandRepository.Object);
 
         _handler = new UpdateMeetingCommandHandler(
@@ -38,8 +38,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_WithValidCommand_ShouldReturnSuccessResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -57,7 +57,7 @@ public class UpdateMeetingCommandHandlerTests
 
         var existingMeeting = Meeting.Create(
             "Original Title",
-            "Original Description", 
+            "Original Description",
             "Original Location",
             DateTime.Now.AddDays(2),
             DateTime.Now.AddDays(2).AddHours(1),
@@ -72,11 +72,11 @@ public class UpdateMeetingCommandHandlerTests
             .ReturnsAsync(newOrganizer);
 
         _mockMeetingCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -87,11 +87,11 @@ public class UpdateMeetingCommandHandlerTests
         result.Value.Should().Be(Unit.Value);
 
         _mockMeetingCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Meeting>(), organizerId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Meeting>(), organizerId, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(organizerId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(organizerId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -99,8 +99,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_WithNonExistentMeeting_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -125,11 +125,11 @@ public class UpdateMeetingCommandHandlerTests
         result.Error.Should().Be("Meeting not found");
 
         _mockUserQueryRepository.Verify(
-            x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _mockMeetingCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -137,8 +137,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_WithNonExistentOrganizer_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -155,7 +155,7 @@ public class UpdateMeetingCommandHandlerTests
 
         var existingMeeting = Meeting.Create(
             "Original Title",
-            "Original Description", 
+            "Original Description",
             "Original Location",
             DateTime.Now.AddDays(2),
             DateTime.Now.AddDays(2).AddHours(1),
@@ -177,7 +177,7 @@ public class UpdateMeetingCommandHandlerTests
         result.Error.Should().Be("Organizer not found");
 
         _mockMeetingCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -185,8 +185,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_WhenMeetingQueryRepositoryThrowsException_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -216,8 +216,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_WhenUserQueryRepositoryThrowsException_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -234,7 +234,7 @@ public class UpdateMeetingCommandHandlerTests
 
         var existingMeeting = Meeting.Create(
             "Original Title",
-            "Original Description", 
+            "Original Description",
             "Original Location",
             DateTime.Now.AddDays(2),
             DateTime.Now.AddDays(2).AddHours(1),
@@ -261,8 +261,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_WhenUpdateAsyncThrowsException_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -280,7 +280,7 @@ public class UpdateMeetingCommandHandlerTests
 
         var existingMeeting = Meeting.Create(
             "Original Title",
-            "Original Description", 
+            "Original Description",
             "Original Location",
             DateTime.Now.AddDays(2),
             DateTime.Now.AddDays(2).AddHours(1),
@@ -295,7 +295,7 @@ public class UpdateMeetingCommandHandlerTests
             .ReturnsAsync(newOrganizer);
 
         _mockMeetingCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Failed to update meeting in database"));
 
         // Act
@@ -311,8 +311,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_WhenSaveChangesAsyncThrowsException_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -330,7 +330,7 @@ public class UpdateMeetingCommandHandlerTests
 
         var existingMeeting = Meeting.Create(
             "Original Title",
-            "Original Description", 
+            "Original Description",
             "Original Location",
             DateTime.Now.AddDays(2),
             DateTime.Now.AddDays(2).AddHours(1),
@@ -345,11 +345,11 @@ public class UpdateMeetingCommandHandlerTests
             .ReturnsAsync(newOrganizer);
 
         _mockMeetingCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Save changes failed"));
 
         // Act
@@ -365,8 +365,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_ShouldCallMethodsWithCorrectParameters()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var command = new UpdateMeetingCommand
         {
             Id = meetingId,
@@ -384,7 +384,7 @@ public class UpdateMeetingCommandHandlerTests
 
         var existingMeeting = Meeting.Create(
             "Original Title",
-            "Original Description", 
+            "Original Description",
             "Original Location",
             DateTime.Now.AddDays(2),
             DateTime.Now.AddDays(2).AddHours(1),
@@ -399,11 +399,11 @@ public class UpdateMeetingCommandHandlerTests
             .ReturnsAsync(newOrganizer);
 
         _mockMeetingCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -421,11 +421,11 @@ public class UpdateMeetingCommandHandlerTests
             Times.Once);
 
         _mockMeetingCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Meeting>(), organizerId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(It.IsAny<Meeting>(), organizerId, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(organizerId.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(organizerId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -433,8 +433,8 @@ public class UpdateMeetingCommandHandlerTests
     public async Task Handle_ShouldHandleCancellationToken()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
-        var organizerId = Guid.NewGuid();
+        var meetingId = 1;
+        var organizerId = 1;
         var cancellationToken = new CancellationToken(true);
         var command = new UpdateMeetingCommand
         {
@@ -453,7 +453,7 @@ public class UpdateMeetingCommandHandlerTests
 
         var existingMeeting = Meeting.Create(
             "Original Title",
-            "Original Description", 
+            "Original Description",
             "Original Location",
             DateTime.Now.AddDays(2),
             DateTime.Now.AddDays(2).AddHours(1),
@@ -468,11 +468,11 @@ public class UpdateMeetingCommandHandlerTests
             .ReturnsAsync(newOrganizer);
 
         _mockMeetingCommandRepository
-            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), cancellationToken))
             .Returns(Task.CompletedTask);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(1);
 
         // Act
@@ -490,11 +490,11 @@ public class UpdateMeetingCommandHandlerTests
             Times.Once);
 
         _mockMeetingCommandRepository.Verify(
-            x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<string>(), cancellationToken),
+            x => x.UpdateAsync(It.IsAny<Meeting>(), It.IsAny<int>(), cancellationToken),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken),
+            x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken),
             Times.Once);
     }
 }

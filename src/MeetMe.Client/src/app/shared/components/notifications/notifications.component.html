@@ -1,0 +1,68 @@
+<div class="notifications-container">
+  <!-- Notification Bell Button -->
+  <div class="notification-bell" (click)="toggleNotifications()">
+    <app-icon name="bell" [size]="20"></app-icon>
+    <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+  </div>
+
+  <!-- Notifications Dropdown -->
+  <div class="notifications-dropdown" [class.open]="isOpen">
+    <div class="dropdown-header">
+      <h3>Notifications</h3>
+      <div class="header-actions" *ngIf="notifications.length > 0">
+        <button class="btn-text" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
+          Mark all read
+        </button>
+        <button class="btn-text" (click)="clearAll()">
+          Clear all
+        </button>
+      </div>
+    </div>
+
+    <div class="notifications-list" *ngIf="notifications.length > 0; else emptyState">
+      <div
+        class="notification-item"
+        *ngFor="let notification of notifications; trackBy: trackByNotificationId"
+        [class.unread]="!notification.isRead"
+        [class]="notification.type"
+        (click)="markAsRead(notification)"
+      >
+        <div class="notification-content">
+          <div class="notification-header">
+            <app-icon [name]="getNotificationIcon(notification.type)" [size]="14"></app-icon>
+            <span class="notification-title">{{ notification.title }}</span>
+            <span class="notification-time">{{ getRelativeTime(notification.timestamp) }}</span>
+            <button
+              class="btn-remove"
+              (click)="removeNotification(notification.id); $event.stopPropagation()"
+            >
+              <app-icon name="x" [size]="14"></app-icon>
+            </button>
+          </div>
+          <p class="notification-message">{{ notification.message }}</p>
+          <div class="notification-actions" *ngIf="notification.actionUrl && notification.actionText">
+            <a
+              [routerLink]="notification.actionUrl"
+              class="notification-action"
+              (click)="closeNotifications()"
+            >
+              {{ notification.actionText }}
+            </a>
+          </div>
+        </div>
+        <div class="unread-indicator" *ngIf="!notification.isRead"></div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-notifications">
+        <app-icon name="bell-off" [size]="32"></app-icon>
+        <h4>No notifications</h4>
+        <p>You're all caught up!</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Overlay for mobile -->
+<div class="notifications-overlay" [class.active]="isOpen" (click)="closeNotifications()"></div>

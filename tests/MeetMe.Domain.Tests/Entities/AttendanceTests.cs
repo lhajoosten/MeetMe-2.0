@@ -75,7 +75,7 @@ public class AttendanceTests
         // Assert
         attendance.Status.Should().Be(newStatus);
         attendance.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        attendance.LastModifiedByUserId.Should().Be(updatingUser.Id.ToString());
+        attendance.LastModifiedByUserId.Should().Be(updatingUser.Id);
     }
 
     [Theory]
@@ -92,7 +92,7 @@ public class AttendanceTests
         // Assert
         attendance.Status.Should().Be(status);
         attendance.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        attendance.LastModifiedByUserId.Should().Be(updatingUser.Id.ToString());
+        attendance.LastModifiedByUserId.Should().Be(updatingUser.Id);
     }
 
     public static IEnumerable<object[]> GetAllAttendanceStatuses()
@@ -142,7 +142,7 @@ public class AttendanceTests
         // Assert
         attendance.IsActive.Should().BeFalse();
         attendance.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        attendance.LastModifiedByUserId.Should().Be(leavingUser.Id.ToString());
+        attendance.LastModifiedByUserId.Should().Be(leavingUser.Id);
         attendance.DomainEvents.Should().HaveCount(initialEventCount + 1);
         attendance.DomainEvents.Should().Contain(e => e is UserLeftMeetingEvent);
     }

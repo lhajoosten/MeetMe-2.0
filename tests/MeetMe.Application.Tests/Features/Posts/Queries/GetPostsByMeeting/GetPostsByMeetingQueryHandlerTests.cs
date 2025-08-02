@@ -1,7 +1,7 @@
 using AutoMapper;
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Posts.DTOs;
 using MeetMe.Application.Features.Posts.Queries.GetPostsByMeeting;
 using MeetMe.Domain.Entities;
 using Moq;
@@ -29,7 +29,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_WithValidMeetingId_ShouldReturnSuccessResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -78,7 +78,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_WithEmptyResults_ShouldReturnEmptyList()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
 
         var posts = new List<Post>();
@@ -108,7 +108,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_ShouldCallRepositoryWithCorrectParameters()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
 
         var posts = new List<Post>();
@@ -141,7 +141,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_ShouldIncludeRelatedEntities()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
 
         var posts = new List<Post>();
@@ -175,7 +175,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_WhenRepositoryThrowsException_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
 
         _mockPostRepository
@@ -198,7 +198,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_WhenMapperThrowsException_ShouldReturnFailureResult()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -239,7 +239,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_ShouldHandleCancellationToken()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
         var cancellationToken = new CancellationToken(true);
 
@@ -275,7 +275,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_ShouldCallMapperWithOrderedPosts()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId = 1;
         var query = new GetPostsByMeetingQuery(meetingId);
 
         var author = User.Create("John", "Doe", "john.doe@example.com");
@@ -325,7 +325,7 @@ public class GetPostsByMeetingQueryHandlerTests
     public async Task Handle_WithDifferentMeetingIds_ShouldWork(string meetingIdString)
     {
         // Arrange
-        var meetingId = Guid.Parse(meetingIdString);
+        var meetingId = int.Parse(meetingIdString);
         var query = new GetPostsByMeetingQuery(meetingId);
 
         var posts = new List<Post>();

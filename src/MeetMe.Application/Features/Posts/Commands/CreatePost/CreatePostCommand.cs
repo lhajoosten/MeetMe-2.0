@@ -1,16 +1,16 @@
-using MediatR;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Common.Abstraction;
+using MeetMe.Application.Features.Posts.DTOs;
 
 namespace MeetMe.Application.Features.Posts.Commands.CreatePost;
 
-public record CreatePostCommand : IRequest<Result<PostDto>>
+public record CreatePostCommand : ICommand<PostDetailDto>
 {
     public string Title { get; init; } = string.Empty;
     public string Content { get; init; } = string.Empty;
-    public Guid MeetingId { get; init; }
-    public Guid AuthorId { get; init; }
+    public int MeetingId { get; init; }
+    public int AuthorId { get; init; }
 
-    public CreatePostCommand(string title, string content, Guid meetingId, Guid authorId)
+    public CreatePostCommand(string title, string content, int meetingId, int authorId)
     {
         Title = title;
         Content = content;

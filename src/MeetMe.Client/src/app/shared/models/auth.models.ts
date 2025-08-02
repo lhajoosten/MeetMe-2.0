@@ -30,3 +30,17 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UpdateUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  bio?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}

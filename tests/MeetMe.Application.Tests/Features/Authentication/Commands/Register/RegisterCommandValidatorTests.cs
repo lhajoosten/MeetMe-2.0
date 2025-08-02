@@ -35,7 +35,7 @@ public class RegisterCommandValidatorTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Validate_WithInvalidEmail_ShouldFail(string email)
+    public void Validate_WithInvalidEmail_ShouldFail(string? email)
     {
         // Arrange
         var command = new RegisterCommand(
@@ -83,7 +83,7 @@ public class RegisterCommandValidatorTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Validate_WithInvalidPassword_ShouldFail(string password)
+    public void Validate_WithInvalidPassword_ShouldFail(string? password)
     {
         // Arrange
         var command = new RegisterCommand(
@@ -175,7 +175,7 @@ public class RegisterCommandValidatorTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Validate_WithInvalidConfirmPassword_ShouldFail(string confirmPassword)
+    public void Validate_WithInvalidConfirmPassword_ShouldFail(string? confirmPassword)
     {
         // Arrange
         var command = new RegisterCommand(
@@ -218,7 +218,7 @@ public class RegisterCommandValidatorTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Validate_WithInvalidFirstName_ShouldFail(string firstName)
+    public void Validate_WithInvalidFirstName_ShouldFail(string? firstName)
     {
         // Arrange
         var command = new RegisterCommand(
@@ -261,7 +261,7 @@ public class RegisterCommandValidatorTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Validate_WithInvalidLastName_ShouldFail(string lastName)
+    public void Validate_WithInvalidLastName_ShouldFail(string? lastName)
     {
         // Arrange
         var command = new RegisterCommand(

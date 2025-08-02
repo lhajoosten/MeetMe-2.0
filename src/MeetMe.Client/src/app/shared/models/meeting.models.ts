@@ -2,17 +2,21 @@ export interface Meeting {
   id: string;
   title: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  startDateTime: string;
+  endDateTime: string;
   location: string;
   maxAttendees?: number;
   isPublic: boolean;
-  organizerId: string;
-  organizer: User;
-  attendees: Attendance[];
-  posts: Post[];
-  createdAt: string;
-  updatedAt: string;
+  isActive: boolean;
+  creatorId: string;
+  creatorName: string;
+  attendeeCount: number;
+  postCount: number;
+  isUpcoming: boolean;
+  createdDate: string;
+  organizer?: User;      		// Deprecated
+  attendees?: Attendance[]; // Deprecated
+  posts?: Post[];        		// Deprecated
 }
 
 export interface CreateMeetingRequest {
@@ -54,36 +58,42 @@ export enum AttendanceStatus {
 }
 
 export interface Post {
-  id: string;
+  id: number;
+  title?: string;
   content: string;
   authorId: string;
   author: User;
   meetingId: string;
   meeting: Meeting;
   comments: Comment[];
+  likes: number;
+  isLiked: boolean;
+  isBookmarked: boolean;
+  tags: string[];
   createdAt: string;
   updatedAt: string;
 }
 
 export interface Comment {
-  id: string;
+  id: number;
   content: string;
   authorId: string;
   author: User;
-  postId: string;
+  postId: number;
   post: Post;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreatePostRequest {
+  title?: string;
   content: string;
   meetingId: string;
 }
 
 export interface CreateCommentRequest {
   content: string;
-  postId: string;
+  postId: number;
 }
 
 import { User } from './auth.models';

@@ -4,6 +4,7 @@ using MeetMe.Application.Features.Search.Queries.GetPopularSearchTerms;
 using MeetMe.Application.Common.Models;
 using MeetMe.Integration.Tests.Base;
 using MeetMe.Integration.Tests.Collections;
+using MeetMe.Application.Features.Search.DTOs;
 
 namespace MeetMe.Integration.Tests.Features;
 

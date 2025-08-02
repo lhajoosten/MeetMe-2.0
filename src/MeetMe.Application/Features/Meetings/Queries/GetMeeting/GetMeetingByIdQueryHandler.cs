@@ -1,52 +1,42 @@
+using AutoMapper;
 using MeetMe.Application.Common.Abstraction;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Meetings.DTOs;
 using MeetMe.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetMe.Application.Features.Meetings.Queries.GetMeeting
 {
-    public class GetMeetingByIdQueryHandler : IQueryHandler<GetMeetingByIdQuery, MeetingDto>
+    public class GetMeetingByIdQueryHandler : IQueryHandler<GetMeetingByIdQuery, MeetingDetailDto>
     {
-        private readonly IQueryRepository<Meeting, Guid> _meetingRepository;
+        private readonly IQueryRepository<Meeting, int> _meetingRepository;
+        private readonly IMapper _mapper;
 
-        public GetMeetingByIdQueryHandler(IQueryRepository<Meeting, Guid> meetingRepository)
+        public GetMeetingByIdQueryHandler(IQueryRepository<Meeting, int> meetingRepository, IMapper mapper)
         {
             _meetingRepository = meetingRepository;
+            _mapper = mapper;
         }
 
-        public async Task<Result<MeetingDto>> Handle(GetMeetingByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<MeetingDetailDto>> Handle(GetMeetingByIdQuery request, CancellationToken cancellationToken)
         {
-            var meeting = await _meetingRepository.GetByIdAsync(
-                request.Id, 
-                cancellationToken,
-                m => m.Creator,
-                m => m.Attendees,
-                m => m.Posts);
+            // Use a more explicit approach to load related data
+            var meeting = await _meetingRepository.AsQueryable()
+                .Include(m => m.Creator)
+                .Include(m => m.Attendees)
+                    .ThenInclude(a => a.User)
+                .Include(m => m.Posts)
+                    .ThenInclude(p => p.Author)
+                .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
             if (meeting == null)
             {
-                return Result.Failure<MeetingDto>("Meeting not found");
+                return Result.Failure<MeetingDetailDto>("Meeting not found");
             }
 
-            var meetingDto = new MeetingDto
-            {
-                Id = meeting.Id,
-                Title = meeting.Title,
-                Description = meeting.Description,
-                Location = meeting.Location.Value,
-                StartDateTime = meeting.MeetingDateTime.StartDateTime,
-                EndDateTime = meeting.MeetingDateTime.EndDateTime,
-                MaxAttendees = meeting.MaxAttendees,
-                IsActive = meeting.IsActive,
-                CreatorId = meeting.CreatorId,
-                CreatorName = meeting.Creator.FullName,
-                AttendeeCount = meeting.Attendees.Count(a => a.IsActive),
-                PostCount = meeting.Posts.Count(p => p.IsActive),
-                IsUpcoming = meeting.IsUpcoming(),
-                CreatedDate = meeting.CreatedDate
-            };
-
-            return Result.Success(meetingDto);
+            var meetingDetailDto = _mapper.Map<MeetingDetailDto>(meeting);
+            return Result.Success(meetingDetailDto);
         }
     }
 }

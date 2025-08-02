@@ -1,13 +1,13 @@
 using MeetMe.Application.Common.Abstraction;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Meetings.DTOs;
 
 namespace MeetMe.Application.Features.Meetings.Queries.GetMeeting
 {
-    public record GetMeetingByIdQuery : IQuery<MeetingDto>
+    public record GetMeetingByIdQuery : IQuery<MeetingDetailDto>
     {
-        public Guid Id { get; init; }
+        public int Id { get; init; }
 
-        public GetMeetingByIdQuery(Guid id)
+        public GetMeetingByIdQuery(int id)
         {
             Id = id;
         }

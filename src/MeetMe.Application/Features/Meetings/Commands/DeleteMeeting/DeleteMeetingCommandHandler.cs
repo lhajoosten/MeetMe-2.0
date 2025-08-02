@@ -8,13 +8,13 @@ namespace MeetMe.Application.Features.Meetings.Commands.DeleteMeeting;
 public class DeleteMeetingCommandHandler : IRequestHandler<DeleteMeetingCommand, Result<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IQueryRepository<Meeting, Guid> _meetingQueryRepository;
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<Meeting, int> _meetingQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
 
     public DeleteMeetingCommandHandler(
         IUnitOfWork unitOfWork,
-        IQueryRepository<Meeting, Guid> meetingQueryRepository,
-        IQueryRepository<User, Guid> userQueryRepository)
+        IQueryRepository<Meeting, int> meetingQueryRepository,
+        IQueryRepository<User, int> userQueryRepository)
     {
         _unitOfWork = unitOfWork;
         _meetingQueryRepository = meetingQueryRepository;
@@ -45,9 +45,9 @@ public class DeleteMeetingCommandHandler : IRequestHandler<DeleteMeetingCommand,
                 return Result.Failure<Unit>("Only the meeting creator can delete the meeting");
             }
 
-            var meetingRepository = _unitOfWork.CommandRepository<Meeting, Guid>();
-            await meetingRepository.SoftDeleteAsync(meeting, request.UserId.ToString(), cancellationToken);
-            await _unitOfWork.SaveChangesAsync(request.UserId.ToString(), cancellationToken);
+            var meetingRepository = _unitOfWork.CommandRepository<Meeting, int>();
+            await meetingRepository.SoftDeleteAsync(meeting, request.UserId, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.UserId, cancellationToken);
 
             return Result.Success(Unit.Value);
         }

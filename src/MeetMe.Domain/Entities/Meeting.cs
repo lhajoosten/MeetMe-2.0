@@ -5,14 +5,15 @@ using MeetMe.Domain.ValueObjects;
 
 namespace MeetMe.Domain.Entities
 {
-    public class Meeting : BaseEntity<Guid>
+    public class Meeting : BaseEntity<int>
     {
         public string Title { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
         public Location Location { get; private set; } = null!;
         public MeetingDateTime MeetingDateTime { get; private set; } = null!;
         public int? MaxAttendees { get; private set; }
-        public Guid CreatorId { get; private set; }
+        public bool IsPublic { get; private set; }
+        public int CreatorId { get; private set; }
 
         public User Creator { get; private set; } = null!;
         public ICollection<Attendance> Attendees { get; private set; } = new List<Attendance>();
@@ -27,7 +28,8 @@ namespace MeetMe.Domain.Entities
             DateTime startDateTime,
             DateTime endDateTime,
             User creator,
-            int? maxAttendees = null)
+            int? maxAttendees = null,
+            bool isPublic = true)
         {
             Guard.Against.NullOrWhiteSpace(title, nameof(title), "Title cannot be null or empty.");
             Guard.Against.NullOrWhiteSpace(description, nameof(description), "Description cannot be null or empty.");
@@ -35,14 +37,14 @@ namespace MeetMe.Domain.Entities
 
             var meeting = new Meeting
             {
-                Id = Guid.NewGuid(),
                 Title = title,
                 Description = description,
                 Location = Location.Create(location),
                 MeetingDateTime = MeetingDateTime.Create(startDateTime, endDateTime),
                 CreatorId = creator.Id,
                 Creator = creator,
-                MaxAttendees = maxAttendees
+                MaxAttendees = maxAttendees,
+                IsPublic = isPublic
             };
 
             // Domain event
@@ -59,7 +61,7 @@ namespace MeetMe.Domain.Entities
             MeetingDateTime = MeetingDateTime.Create(startDateTime, endDateTime);
 
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id.ToString();
+            LastModifiedByUserId = user.Id;
         }
 
         public bool CanAcceptMoreAttendees()
@@ -76,7 +78,7 @@ namespace MeetMe.Domain.Entities
         {
             IsActive = false;
             LastModifiedDate = DateTime.Now;
-            LastModifiedByUserId = user.Id.ToString();
+            LastModifiedByUserId = user.Id;
         }
 
         private readonly List<IDomainEvent> _domainEvents = new();

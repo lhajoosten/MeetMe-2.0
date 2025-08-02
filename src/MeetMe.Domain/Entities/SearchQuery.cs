@@ -9,7 +9,7 @@ public class SearchQuery : BaseEntity<int>
 {
     public string Query { get; private set; } = string.Empty;
     public string SearchType { get; private set; } = string.Empty; // Global, Meeting, Post, Comment, User
-    public Guid? UserId { get; private set; }
+    public int? UserId { get; private set; }
     public int ResultCount { get; private set; }
     public TimeSpan SearchDuration { get; private set; }
     public DateTime SearchedAt { get; private set; }
@@ -24,7 +24,7 @@ public class SearchQuery : BaseEntity<int>
     public static SearchQuery Create(
         string query,
         string searchType,
-        Guid? userId = null,
+        int? userId = null,
         int resultCount = 0,
         TimeSpan searchDuration = default,
         string ipAddress = "",

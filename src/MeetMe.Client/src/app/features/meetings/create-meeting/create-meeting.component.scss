@@ -214,6 +214,15 @@ textarea.form-control {
   font-size: 12px;
 }
 
+.success-message {
+  margin-top: 8px;
+}
+
+.success-message small {
+  color: #27ae60;
+  font-size: 12px;
+}
+
 @media (max-width: 768px) {
   .create-meeting-container {
     padding: 16px;

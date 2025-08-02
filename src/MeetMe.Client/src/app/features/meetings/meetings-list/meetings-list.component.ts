@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MeetingsService } from '../../../core/services/meetings.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { Meeting, SearchFilters } from '../../../shared/models';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-meetings-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, IconComponent],
   templateUrl: './meetings-list.component.html',
   styleUrl: './meetings-list.component.scss'
 })
@@ -24,7 +24,6 @@ export class MeetingsListComponent implements OnInit {
 
   constructor(
     private meetingsService: MeetingsService,
-    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -32,15 +31,22 @@ export class MeetingsListComponent implements OnInit {
     this.loadMeetings();
   }
 
+  // Public method to refresh meetings list
+  refreshMeetings(): void {
+    this.loadMeetings();
+  }
+
   loadMeetings(): void {
     this.isLoading = true;
     this.meetingsService.getAllMeetings(this.filters).subscribe({
       next: (response) => {
-        this.meetings = response.items;
+        // Handle both array response and paginated response
+        this.meetings = Array.isArray(response) ? response : (response?.items || []);
         this.isLoading = false;
       },
       error: (error: any) => {
         console.error('Error loading meetings:', error);
+        this.meetings = []; // Reset to empty array on error
         this.isLoading = false;
       }
     });
@@ -56,11 +62,6 @@ export class MeetingsListComponent implements OnInit {
   viewMeeting(id: string): void {
     // Navigate to meeting detail
     window.location.href = `/meetings/${id}`;
-  }
-
-  logout(): void {
-    this.authService.logout();
-    window.location.href = '/auth/login';
   }
 
   navigateToSearch(): void {

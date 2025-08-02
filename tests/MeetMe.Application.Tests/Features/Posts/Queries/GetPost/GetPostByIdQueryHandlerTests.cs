@@ -1,7 +1,7 @@
 using AutoMapper;
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Posts.DTOs;
 using MeetMe.Application.Features.Posts.Queries.GetPost;
 using MeetMe.Domain.Entities;
 using Moq;
@@ -71,7 +71,7 @@ public class GetPostByIdQueryHandlerTests
         result.Value.Id.Should().Be(postId);
         result.Value.Title.Should().Be("Test Title");
         result.Value.Content.Should().Be("Test Content");
-        result.Value.AuthorName.Should().Be("John Doe");
+        result.Value.Author.FullName.Should().Be("John Doe");
 
         _mockPostRepository.Verify(
             x => x.GetByIdAsync(

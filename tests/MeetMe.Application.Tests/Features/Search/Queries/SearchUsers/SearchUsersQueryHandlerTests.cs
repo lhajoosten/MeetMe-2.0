@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Search.DTOs;
 using MeetMe.Application.Features.Search.Queries.SearchUsers;
 using Moq;
 
@@ -26,21 +27,19 @@ public class SearchUsersQueryHandlerTests
         {
             new UserSearchResultDto
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john.doe@example.com",
-                CreatedDate = DateTime.UtcNow.AddDays(-30),
-                IsActive = true
+                CreatedDate = DateTime.UtcNow.AddDays(-30)
             },
             new UserSearchResultDto
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 FirstName = "Johnny",
                 LastName = "Smith",
                 Email = "johnny.smith@example.com",
-                CreatedDate = DateTime.UtcNow.AddDays(-15),
-                IsActive = true
+                CreatedDate = DateTime.UtcNow.AddDays(-15)
             }
         };
         var expectedResult = Result.Success(expectedUsers);
@@ -238,12 +237,11 @@ public class SearchUsersQueryHandlerTests
         {
             new UserSearchResultDto
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john.doe@company.com",
-                CreatedDate = DateTime.UtcNow.AddDays(-60),
-                IsActive = true
+                CreatedDate = DateTime.UtcNow.AddDays(-60)
             }
         };
         var expectedResult = Result.Success(expectedUsers);
@@ -266,7 +264,6 @@ public class SearchUsersQueryHandlerTests
         result.Value.Should().HaveCount(1);
         result.Value[0].FullName.Should().Be("John Doe");
         result.Value[0].Email.Should().Be("john.doe@company.com");
-        result.Value[0].IsActive.Should().BeTrue();
     }
 
     [Fact]
@@ -279,21 +276,19 @@ public class SearchUsersQueryHandlerTests
         {
             new UserSearchResultDto
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 FirstName = "Active",
                 LastName = "User",
                 Email = "active.user@example.com",
-                CreatedDate = DateTime.UtcNow.AddDays(-10),
-                IsActive = true
+                CreatedDate = DateTime.UtcNow.AddDays(-10)
             },
             new UserSearchResultDto
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 FirstName = "Inactive",
                 LastName = "User",
                 Email = "inactive.user@example.com",
-                CreatedDate = DateTime.UtcNow.AddDays(-20),
-                IsActive = false
+                CreatedDate = DateTime.UtcNow.AddDays(-20)
             }
         };
         var expectedResult = Result.Success(expectedUsers);
@@ -314,8 +309,8 @@ public class SearchUsersQueryHandlerTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().HaveCount(2);
-        result.Value.Should().Contain(u => u.IsActive == true);
-        result.Value.Should().Contain(u => u.IsActive == false);
+        result.Value.Should().Contain(u => u.FirstName == "Active");
+        result.Value.Should().Contain(u => u.FirstName == "Inactive");
 
         _searchServiceMock.Verify(
             x => x.SearchUsersAsync(

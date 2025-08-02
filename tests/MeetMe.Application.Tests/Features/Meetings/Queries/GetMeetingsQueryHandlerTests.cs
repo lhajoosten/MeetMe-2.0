@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Features.Meetings.Queries.GetAllMeetings;
@@ -9,13 +10,15 @@ namespace MeetMe.Application.Tests.Features.Meetings.Queries;
 
 public class GetMeetingsQueryHandlerTests
 {
-    private readonly Mock<IQueryRepository<Meeting, Guid>> _mockMeetingRepository;
+    private readonly Mock<IQueryRepository<Meeting, int>> _mockMeetingRepository;
+    private readonly Mock<IMapper> _mockMapper;
     private readonly GetMeetingsQueryHandler _handler;
 
     public GetMeetingsQueryHandlerTests()
     {
-        _mockMeetingRepository = new Mock<IQueryRepository<Meeting, Guid>>();
-        _handler = new GetMeetingsQueryHandler(_mockMeetingRepository.Object);
+        _mockMeetingRepository = new Mock<IQueryRepository<Meeting, int>>();
+        _mockMapper = new Mock<IMapper>();
+        _handler = new GetMeetingsQueryHandler(_mockMeetingRepository.Object, _mockMapper.Object);
     }
 
     [Fact]

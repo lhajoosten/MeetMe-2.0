@@ -4,28 +4,30 @@ using MeetMe.Application.Features.Meetings.Commands.CreateMeeting;
 using MeetMe.Domain.Entities;
 using Moq;
 
-namespace MeetMe.Application.Tests.Features.Meetings.Commands;
+namespace MeetMe.Application.Tests.Features.Meetings.Commands.CreateMeeting;
 
 public class CreateMeetingCommandHandlerTests
 {
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-    private readonly Mock<IQueryRepository<User, Guid>> _mockUserQueryRepository;
-    private readonly Mock<ICommandRepository<Meeting, Guid>> _mockMeetingCommandRepository;
+    private readonly Mock<IQueryRepository<User, int>> _mockUserQueryRepository;
+    private readonly Mock<ICommandRepository<Meeting, int>> _mockMeetingCommandRepository;
     private readonly CreateMeetingCommandHandler _handler;
     private readonly User _testUser;
 
     public CreateMeetingCommandHandlerTests()
     {
         _mockUnitOfWork = new Mock<IUnitOfWork>();
-        _mockUserQueryRepository = new Mock<IQueryRepository<User, Guid>>();
-        _mockMeetingCommandRepository = new Mock<ICommandRepository<Meeting, Guid>>();
+        _mockUserQueryRepository = new Mock<IQueryRepository<User, int>>();
+        _mockMeetingCommandRepository = new Mock<ICommandRepository<Meeting, int>>();
         
-        _mockUnitOfWork.Setup(x => x.CommandRepository<Meeting, Guid>())
+        _mockUnitOfWork.Setup(x => x.CommandRepository<Meeting, int>())
             .Returns(_mockMeetingCommandRepository.Object);
         
         _handler = new CreateMeetingCommandHandler(_mockUnitOfWork.Object, _mockUserQueryRepository.Object);
         
         _testUser = User.Create("John", "Doe", "john@example.com");
+        // Set the ID manually for testing purposes
+        _testUser.GetType().GetProperty("Id")!.SetValue(_testUser, 1);
     }
 
     [Fact]
@@ -48,7 +50,7 @@ public class CreateMeetingCommandHandlerTests
             .ReturnsAsync(_testUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -56,7 +58,7 @@ public class CreateMeetingCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBe(Guid.Empty);
+        result.Value.Should().NotBe(0);
 
         _mockMeetingCommandRepository.Verify(
             x => x.AddAsync(It.Is<Meeting>(m => 
@@ -64,12 +66,12 @@ public class CreateMeetingCommandHandlerTests
                 m.Description == command.Description &&
                 m.Creator == _testUser &&
                 m.MaxAttendees == command.MaxAttendees), 
-                _testUser.Id.ToString(), 
+                _testUser.Id, 
                 It.IsAny<CancellationToken>()), 
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(_testUser.Id.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(_testUser.Id, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -85,7 +87,7 @@ public class CreateMeetingCommandHandlerTests
             StartDateTime = DateTime.UtcNow.AddDays(1),
             EndDateTime = DateTime.UtcNow.AddDays(1).AddHours(2),
             MaxAttendees = 10,
-            CreatorId = Guid.NewGuid()
+            CreatorId = 1
         };
 
         _mockUserQueryRepository
@@ -100,11 +102,11 @@ public class CreateMeetingCommandHandlerTests
         result.Error.Should().Be("Creator not found");
 
         _mockMeetingCommandRepository.Verify(
-            x => x.AddAsync(It.IsAny<Meeting>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.AddAsync(It.IsAny<Meeting>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -128,7 +130,7 @@ public class CreateMeetingCommandHandlerTests
             .ReturnsAsync(_testUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -136,12 +138,12 @@ public class CreateMeetingCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBe(Guid.Empty);
+        result.Value.Should().NotBe(0);
 
         _mockMeetingCommandRepository.Verify(
             x => x.AddAsync(It.Is<Meeting>(m => 
                 m.MaxAttendees == null), 
-                _testUser.Id.ToString(), 
+                _testUser.Id, 
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -166,7 +168,7 @@ public class CreateMeetingCommandHandlerTests
             .ReturnsAsync(_testUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -174,7 +176,7 @@ public class CreateMeetingCommandHandlerTests
 
         // Assert
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(_testUser.Id.ToString(), It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(_testUser.Id, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -198,7 +200,7 @@ public class CreateMeetingCommandHandlerTests
             .ReturnsAsync(_testUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -212,7 +214,7 @@ public class CreateMeetingCommandHandlerTests
                     m.Description == "Very important meeting description" &&
                     m.MaxAttendees == 25 &&
                     m.Creator == _testUser),
-                _testUser.Id.ToString(),
+                _testUser.Id,
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -237,7 +239,7 @@ public class CreateMeetingCommandHandlerTests
             .ReturnsAsync(_testUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -245,10 +247,10 @@ public class CreateMeetingCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBe(Guid.Empty);
+        result.Value.Should().NotBe(0);
         
-        // Verify that the returned ID is a valid GUID (not default)
-        result.Value.Should().NotBe(default(Guid));
+        // Verify that the returned ID is a valid integer (not default)
+        result.Value.Should().NotBe(default(int));
     }
 
     [Fact]
@@ -273,7 +275,7 @@ public class CreateMeetingCommandHandlerTests
             .ReturnsAsync(_testUser);
 
         _mockUnitOfWork
-            .Setup(x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(1);
 
         // Act
@@ -285,11 +287,11 @@ public class CreateMeetingCommandHandlerTests
             Times.Once);
 
         _mockMeetingCommandRepository.Verify(
-            x => x.AddAsync(It.IsAny<Meeting>(), It.IsAny<string>(), cancellationToken),
+            x => x.AddAsync(It.IsAny<Meeting>(), It.IsAny<int>(), cancellationToken),
             Times.Once);
 
         _mockUnitOfWork.Verify(
-            x => x.SaveChangesAsync(It.IsAny<string>(), cancellationToken),
+            x => x.SaveChangesAsync(It.IsAny<int>(), cancellationToken),
             Times.Once);
     }
 }

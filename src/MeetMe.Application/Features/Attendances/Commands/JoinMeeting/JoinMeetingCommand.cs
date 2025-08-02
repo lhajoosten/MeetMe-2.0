@@ -3,8 +3,8 @@ using MeetMe.Application.Common.Models;
 
 namespace MeetMe.Application.Features.Attendances.Commands.JoinMeeting;
 
-public record JoinMeetingCommand : IRequest<Result<Guid>>
+public record JoinMeetingCommand : IRequest<Result<int>>
 {
-    public Guid MeetingId { get; init; }
-    public Guid UserId { get; init; }
+    public int MeetingId { get; init; }
+    public int UserId { get; init; }
 }

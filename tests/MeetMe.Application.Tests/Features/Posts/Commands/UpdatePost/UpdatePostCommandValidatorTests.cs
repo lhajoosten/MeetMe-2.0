@@ -20,7 +20,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Updated Meeting Notes",
             "Updated content with new information and action items",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -41,7 +41,7 @@ public class UpdatePostCommandValidatorTests
             id,
             "Valid Title",
             "Valid content for the post",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -62,7 +62,7 @@ public class UpdatePostCommandValidatorTests
             1,
             title,
             "Valid content for the post",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -81,7 +81,7 @@ public class UpdatePostCommandValidatorTests
             1,
             null!,
             "Valid content for the post",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -101,7 +101,7 @@ public class UpdatePostCommandValidatorTests
             1,
             longTitle,
             "Valid content for the post",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -121,7 +121,7 @@ public class UpdatePostCommandValidatorTests
             1,
             maxTitle,
             "Valid content for the post",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -140,7 +140,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Valid Title",
             content,
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -159,7 +159,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Valid Title",
             null!,
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -179,7 +179,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Valid Title",
             longContent,
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -199,7 +199,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Valid Title",
             maxContent,
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -216,7 +216,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Valid Title",
             "Valid content for the post",
-            Guid.Empty);
+            0);
 
         // Act
         var result = _validator.Validate(command);
@@ -231,7 +231,7 @@ public class UpdatePostCommandValidatorTests
     public void Validate_WithValidUserId_ShouldPass()
     {
         // Arrange
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var command = new UpdatePostCommand(
             1,
             "Valid Title",
@@ -254,7 +254,7 @@ public class UpdatePostCommandValidatorTests
             0, // Invalid ID
             "", // Invalid title
             "", // Invalid content
-            Guid.Empty); // Invalid user ID
+            0); // Invalid user ID
 
         // Act
         var result = _validator.Validate(command);
@@ -279,7 +279,7 @@ public class UpdatePostCommandValidatorTests
             id,
             title,
             "Valid content for the post",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -299,7 +299,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Valid Title",
             content,
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -316,7 +316,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Updated Meeting Notes - Q3 Planning & Review (2024) - REVISED",
             "Valid content for the post",
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);
@@ -350,7 +350,7 @@ public class UpdatePostCommandValidatorTests
             1,
             "Weekly Team Meeting - Updated",
             formattedContent,
-            Guid.NewGuid());
+            1);
 
         // Act
         var result = _validator.Validate(command);

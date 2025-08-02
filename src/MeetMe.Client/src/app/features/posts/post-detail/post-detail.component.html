@@ -1,134 +1,115 @@
-<div class="post-card">
-  <div class="post-header">
-    <div class="author-info">
-      <div class="author-avatar">
-        {{ post.author.firstName.charAt(0) }}{{ post.author.lastName.charAt(0) }}
+<div class="post-detail-container">
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading post...</p>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div class="post-detail" *ngIf="post && !isLoading">
+    <!-- Post Content -->
+    <div class="post-card">
+      <div class="post-header">
+        <div class="author-info">
+          <h2>{{ post.author.firstName }} {{ post.author.lastName }}</h2>
+          <span class="post-date">{{ post.createdAt | date:'medium' }}</span>
+        </div>
+        <div class="post-actions" *ngIf="canDeletePost()">
+          <button
+            class="btn btn-danger btn-small"
+            (click)="onDeletePost()"
+            title="Delete post"
+          >
+            Delete Post
+          </button>
+        </div>
       </div>
-      <div class="author-details">
-        <h5>{{ post.author.firstName }} {{ post.author.lastName }}</h5>
-        <span class="post-date">{{ formattedDate }}</span>
+
+      <div class="post-content">
+        <p>{{ post.content }}</p>
+      </div>
+
+      <div class="post-footer">
+        <div class="post-stats">
+          <span class="comments-count">
+            {{ comments.length }} {{ comments.length === 1 ? 'comment' : 'comments' }}
+          </span>
+        </div>
+        <div class="post-footer-actions">
+          <a
+            [routerLink]="['/meetings', post.meetingId]"
+            class="btn btn-outline btn-small"
+          >
+            Back to Meeting
+          </a>
+        </div>
       </div>
     </div>
 
-    <div class="post-actions" *ngIf="canEditPost">
-      <button
-        class="btn-action"
-        (click)="startEdit()"
-        *ngIf="!isEditing"
-        title="Edit post">
-        ✏️
-      </button>
-      <button
-        class="btn-action danger"
-        (click)="deletePost()"
-        *ngIf="!isEditing"
-        title="Delete post">
-        🗑️
-      </button>
-    </div>
-  </div>
-
-  <div class="post-content" *ngIf="!isEditing">
-    <p>{{ post.content }}</p>
-  </div>
-
-  <div class="post-edit" *ngIf="isEditing">
-    <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
-      <div class="form-group">
-        <textarea
-          formControlName="content"
-          class="form-control"
-          [class.error]="editForm.get('content')?.invalid && editForm.get('content')?.touched"
-          rows="3"
-        ></textarea>
-      </div>
-
-      <div class="edit-actions">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="cancelEdit()"
-          [disabled]="isUpdatingPost">
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          [disabled]="editForm.invalid || isUpdatingPost">
-          {{ isUpdatingPost ? 'Saving...' : 'Save' }}
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <div class="post-footer">
-    <button
-      class="btn-footer"
-      (click)="toggleComments()"
-      [class.active]="showComments">
-      💬 {{ post.comments.length }} {{ post.comments.length === 1 ? 'Comment' : 'Comments' }}
-    </button>
-
-    <button
-      class="btn-footer"
-      (click)="toggleCommentForm()">
-      {{ showCommentForm ? 'Cancel Reply' : 'Reply' }}
-    </button>
-  </div>
-
-  <div class="comments-section" *ngIf="showComments">
-    <div class="comment-form" *ngIf="showCommentForm">
-      <form [formGroup]="commentForm" (ngSubmit)="onCommentSubmit()">
+    <!-- Add Comment Form -->
+    <div class="comment-form-container">
+      <h3>Add a Comment</h3>
+      <form [formGroup]="commentForm" (ngSubmit)="onSubmitComment()">
         <div class="form-group">
           <textarea
             formControlName="content"
             class="form-control"
-            [class.error]="commentContentControl?.invalid && commentContentControl?.touched"
-            placeholder="Write a comment..."
-            rows="2"
+            [class.error]="commentForm.get('content')?.invalid && commentForm.get('content')?.touched"
+            placeholder="Write your comment..."
+            rows="3"
           ></textarea>
-
-          <div class="form-footer">
-            <div class="char-counter" [class.warning]="remainingCommentChars < 50" [class.danger]="remainingCommentChars < 0">
-              {{ remainingCommentChars }} characters remaining
-            </div>
+          <div class="error-message" *ngIf="commentForm.get('content')?.invalid && commentForm.get('content')?.touched">
+            <small *ngIf="commentForm.get('content')?.errors?.['required']">Please enter a comment</small>
           </div>
         </div>
 
-        <div class="comment-actions">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="showCommentForm = false"
-            [disabled]="isCreatingComment">
-            Cancel
-          </button>
+        <div class="form-actions">
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="commentForm.invalid || isCreatingComment || remainingCommentChars < 0">
-            {{ isCreatingComment ? 'Posting...' : 'Comment' }}
+            [disabled]="commentForm.invalid || isSubmittingComment"
+          >
+            {{ isSubmittingComment ? 'Adding Comment...' : 'Add Comment' }}
           </button>
         </div>
       </form>
     </div>
 
-    <div class="comments-list" *ngIf="post.comments.length > 0">
-      <app-comment
-        *ngFor="let comment of post.comments; trackBy: trackByCommentId"
-        [comment]="comment"
-        [currentUserId]="currentUserId"
-        (commentUpdated)="onCommentUpdated($event)"
-        (commentDeleted)="onCommentDeleted($event)">
-      </app-comment>
-    </div>
+    <!-- Comments List -->
+    <div class="comments-section">
+      <h3>Comments</h3>
 
-    <div class="no-comments" *ngIf="post.comments.length === 0 && showComments">
-      <p>No comments yet. Be the first to comment!</p>
-    </div>
-  </div>
+      <div class="no-comments" *ngIf="comments.length === 0">
+        <p>No comments yet. Be the first to comment!</p>
+      </div>
 
-  <div class="error-message" *ngIf="errorMessage">
-    <small>{{ errorMessage }}</small>
+      <div class="comments-list" *ngIf="comments.length > 0">
+        <div
+          *ngFor="let comment of comments; trackBy: trackByCommentId"
+          class="comment-card"
+        >
+          <div class="comment-header">
+            <div class="comment-author">
+              <h4>{{ comment.author.firstName }} {{ comment.author.lastName }}</h4>
+              <span class="comment-date">{{ comment.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="comment-actions" *ngIf="canDeleteComment(comment)">
+              <button
+                class="btn btn-danger btn-small"
+                (click)="onDeleteComment(comment.id)"
+                title="Delete comment"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <div class="comment-content">
+            <p>{{ comment.content }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

@@ -1,7 +1,7 @@
 <div class="create-meeting-container">
   <div class="header">
     <button class="btn-back" routerLink="/meetings">
-      <i class="icon-arrow-left"></i> Back to Meetings
+      <app-icon name="arrow-left"></app-icon> Back to Meetings
     </button>
     <h1>Create New Meeting</h1>
     <p>Organize an amazing gathering for your community</p>
@@ -143,6 +143,10 @@
         >
           {{ isLoading ? 'Creating Meeting...' : 'Create Meeting' }}
         </button>
+      </div>
+
+      <div class="success-message" *ngIf="successMessage">
+        <small>{{ successMessage }}</small>
       </div>
 
       <div class="error-message" *ngIf="errorMessage">

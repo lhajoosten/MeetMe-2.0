@@ -15,7 +15,7 @@ namespace MeetMe.Application.Common.Interfaces
         /// <summary>
         /// Gets an entity by its ID asynchronously
         /// </summary>
-        Task<T> GetByIdAsync(TKey id, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includeProperties);
+        Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includeProperties);
 
         /// <summary>
         /// Gets a queryable collection of entities
@@ -45,7 +45,7 @@ namespace MeetMe.Application.Common.Interfaces
         /// <summary>
         /// Gets a single entity matching a predicate asynchronously
         /// </summary>
-        Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includeProperties);
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includeProperties);
 
         /// <summary>
         /// Gets a single entity matching a predicate asynchronously, throws if not found

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Search.DTOs;
 using MeetMe.Integration.Tests.Base;
 using MeetMe.Integration.Tests.Collections;
 

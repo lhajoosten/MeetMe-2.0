@@ -1,13 +1,13 @@
-using MediatR;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Common.Abstraction;
+using MeetMe.Application.Features.Posts.DTOs;
 
 namespace MeetMe.Application.Features.Posts.Queries.GetPostsByMeeting;
 
-public record GetPostsByMeetingQuery : IRequest<Result<List<PostDto>>>
+public record GetPostsByMeetingQuery : IQuery<List<PostDetailDto>>
 {
-    public Guid MeetingId { get; init; }
+    public int MeetingId { get; init; }
 
-    public GetPostsByMeetingQuery(Guid meetingId)
+    public GetPostsByMeetingQuery(int meetingId)
     {
         MeetingId = meetingId;
     }

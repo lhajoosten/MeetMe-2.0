@@ -5,6 +5,6 @@ namespace MeetMe.Application.Features.Meetings.Commands.DeleteMeeting;
 
 public record DeleteMeetingCommand : IRequest<Result<Unit>>
 {
-    public Guid Id { get; init; }
-    public Guid UserId { get; init; }
+    public int Id { get; init; }
+    public int UserId { get; init; }
 }

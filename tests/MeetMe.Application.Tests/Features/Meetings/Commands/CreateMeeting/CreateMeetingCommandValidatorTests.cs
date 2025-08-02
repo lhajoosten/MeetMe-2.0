@@ -2,7 +2,7 @@ using FluentAssertions;
 using FluentValidation.TestHelper;
 using MeetMe.Application.Features.Meetings.Commands.CreateMeeting;
 
-namespace MeetMe.Application.Tests.Features.Meetings.Commands;
+namespace MeetMe.Application.Tests.Features.Meetings.Commands.CreateMeeting;
 
 public class CreateMeetingCommandValidatorTests
 {
@@ -25,7 +25,7 @@ public class CreateMeetingCommandValidatorTests
             StartDateTime = DateTime.UtcNow.AddDays(1),
             EndDateTime = DateTime.UtcNow.AddDays(1).AddHours(2),
             MaxAttendees = 10,
-            CreatorId = Guid.NewGuid()
+            CreatorId = 1
         };
 
         // Act
@@ -206,7 +206,7 @@ public class CreateMeetingCommandValidatorTests
     {
         // Arrange
         var command = GetValidCommand();
-        command = command with { CreatorId = Guid.Empty };
+        command = command with { CreatorId = 0 };
 
         // Act
         var result = _validator.TestValidate(command);
@@ -282,7 +282,7 @@ public class CreateMeetingCommandValidatorTests
             StartDateTime = DateTime.UtcNow.AddDays(1),
             EndDateTime = DateTime.UtcNow.AddDays(1).AddHours(2),
             MaxAttendees = 10,
-            CreatorId = Guid.NewGuid()
+            CreatorId = 1
         };
     }
 }

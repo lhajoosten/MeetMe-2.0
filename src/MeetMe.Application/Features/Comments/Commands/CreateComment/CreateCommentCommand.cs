@@ -1,16 +1,16 @@
-using MediatR;
-using MeetMe.Application.Common.Models;
+using MeetMe.Application.Common.Abstraction;
+using MeetMe.Application.Features.Comments.DTOs;
 
 namespace MeetMe.Application.Features.Comments.Commands.CreateComment;
 
-public record CreateCommentCommand : IRequest<Result<CommentDto>>
+public record CreateCommentCommand : ICommand<CommentDto>
 {
     public string Content { get; init; } = string.Empty;
     public int PostId { get; init; }
-    public Guid AuthorId { get; init; }
+    public int AuthorId { get; init; }
     public int? ParentCommentId { get; init; }
 
-    public CreateCommentCommand(string content, int postId, Guid authorId, int? parentCommentId = null)
+    public CreateCommentCommand(string content, int postId, int authorId, int? parentCommentId = null)
     {
         Content = content;
         PostId = postId;

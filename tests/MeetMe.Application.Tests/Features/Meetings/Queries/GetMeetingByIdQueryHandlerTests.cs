@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Features.Meetings.Queries.GetMeeting;
@@ -9,20 +10,22 @@ namespace MeetMe.Application.Tests.Features.Meetings.Queries;
 
 public class GetMeetingByIdQueryHandlerTests
 {
-    private readonly Mock<IQueryRepository<Meeting, Guid>> _mockMeetingRepository;
+    private readonly Mock<IQueryRepository<Meeting, int>> _mockMeetingRepository;
     private readonly GetMeetingByIdQueryHandler _handler;
+    private readonly Mock<IMapper> _mapper;
 
     public GetMeetingByIdQueryHandlerTests()
     {
-        _mockMeetingRepository = new Mock<IQueryRepository<Meeting, Guid>>();
-        _handler = new GetMeetingByIdQueryHandler(_mockMeetingRepository.Object);
+        _mockMeetingRepository = new Mock<IQueryRepository<Meeting, int>>();
+        _mapper = new Mock<IMapper>();
+        _handler = new GetMeetingByIdQueryHandler(_mockMeetingRepository.Object, _mapper.Object);
     }
 
     [Fact]
     public async Task Handle_WithValidId_ShouldReturnMeetingDto()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId= 1;
         var creator = User.Create("John", "Doe", "john@example.com");
         var meeting = Meeting.Create(
             "Test Meeting",
@@ -60,8 +63,7 @@ public class GetMeetingByIdQueryHandlerTests
         result.Value.Description.Should().Be("Test Description");
         result.Value.Location.Should().Be("Conference Room");
         result.Value.CreatorId.Should().Be(creator.Id);
-        result.Value.CreatorName.Should().Be($"{creator.FirstName} {creator.LastName}");
-        result.Value.IsActive.Should().BeTrue();
+        result.Value.Creator.FullName.Should().Be($"{creator.FirstName} {creator.LastName}");
         result.Value.IsUpcoming.Should().BeTrue();
     }
 
@@ -69,7 +71,7 @@ public class GetMeetingByIdQueryHandlerTests
     public async Task Handle_WithValidId_ShouldIncludeRelatedData()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId= 1;
         var creator = User.Create("John", "Doe", "john@example.com");
         var meeting = Meeting.Create(
             "Test Meeting",
@@ -112,15 +114,15 @@ public class GetMeetingByIdQueryHandlerTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
-        result.Value.AttendeeCount.Should().Be(2);
-        result.Value.PostCount.Should().Be(2);
+        result.Value.Attendees.Count.Should().Be(2);
+        result.Value.Posts.Count.Should().Be(2);
     }
 
     [Fact]
     public async Task Handle_WithCancelledToken_ShouldPassCancellationToken()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId= 1;
         var cancellationToken = new CancellationToken(true);
         var query = new GetMeetingByIdQuery(meetingId);
 
@@ -145,7 +147,7 @@ public class GetMeetingByIdQueryHandlerTests
     public void Query_Constructor_ShouldSetIdCorrectly()
     {
         // Arrange
-        var id = Guid.NewGuid();
+        var id = 1;
 
         // Act
         var query = new GetMeetingByIdQuery(id);
@@ -158,14 +160,14 @@ public class GetMeetingByIdQueryHandlerTests
     public async Task Handle_ShouldCallRepositoryWithCorrectIncludes()
     {
         // Arrange
-        var meetingId = Guid.NewGuid();
+        var meetingId= 1;
         var query = new GetMeetingByIdQuery(meetingId);
 
         _mockMeetingRepository
             .Setup(x => x.GetByIdAsync(
                 meetingId,
                 It.IsAny<CancellationToken>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Meeting, object>>[]>()))
+                It.IsAny<System.Linq.Expressions.Expression<Func<Meeting, object>>[]>()))!
             .ReturnsAsync((Meeting?)null);
 
         // Act

@@ -10,7 +10,7 @@ public class SearchQueryTests
         // Arrange
         var query = "meeting discussion";
         var searchType = "Global";
-        var userId = Guid.NewGuid();
+        var userId = 1;
         var resultCount = 5;
         var searchDuration = TimeSpan.FromMilliseconds(150);
         var ipAddress = "192.168.1.1";

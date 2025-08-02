@@ -3,6 +3,7 @@ using MediatR;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
 using MeetMe.Application.Features.Authentication.DTOs;
+using MeetMe.Application.Features.Users.DTOs;
 using MeetMe.Application.Services;
 using MeetMe.Domain.Entities;
 using MeetMe.Domain.ValueObjects;
@@ -11,13 +12,13 @@ namespace MeetMe.Application.Features.Authentication.Commands.Login;
 
 public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthenticationResult>>
 {
-    private readonly IQueryRepository<User, Guid> _userQueryRepository;
+    private readonly IQueryRepository<User, int> _userQueryRepository;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IPasswordService _passwordService;
     private readonly IMapper _mapper;
 
     public LoginCommandHandler(
-        IQueryRepository<User, Guid> userQueryRepository,
+        IQueryRepository<User, int> userQueryRepository,
         IJwtTokenService jwtTokenService,
         IPasswordService passwordService,
         IMapper mapper)

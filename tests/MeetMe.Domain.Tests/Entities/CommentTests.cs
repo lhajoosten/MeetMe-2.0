@@ -127,7 +127,7 @@ public class CommentTests
         // Assert
         comment.Content.Should().Be(newContent);
         comment.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        comment.LastModifiedByUserId.Should().Be(updatingUser.Id.ToString());
+        comment.LastModifiedByUserId.Should().Be(updatingUser.Id);
     }
 
     [Theory]
@@ -183,7 +183,7 @@ public class CommentTests
         // Assert
         comment.IsActive.Should().BeFalse();
         comment.LastModifiedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        comment.LastModifiedByUserId.Should().Be(deactivatingUser.Id.ToString());
+        comment.LastModifiedByUserId.Should().Be(deactivatingUser.Id);
     }
 
     [Fact]

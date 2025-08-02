@@ -1,0 +1,19 @@
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 0;
+  background: #f8f9fa;
+  min-height: calc(100vh - 64px);
+}
+
+/* Ensure content doesn't get hidden behind fixed navbar */
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 0;
+  }
+}

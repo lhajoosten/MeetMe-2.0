@@ -1,21 +1,8 @@
 <div class="meetings-container">
-  <header class="meetings-header">
-    <div class="header-content">
-      <h1>Discover Meetings</h1>
-      <p>Find and join amazing meetings in your area</p>
-    </div>
-    <div class="header-actions">
-      <button class="btn btn-outline" routerLink="/users/profile">
-        <i class="icon-user"></i> Profile
-      </button>
-      <button class="btn btn-primary" routerLink="/meetings/create">
-        <i class="icon-plus"></i> Create Meeting
-      </button>
-      <button class="btn btn-secondary" (click)="logout()">
-        Logout
-      </button>
-    </div>
-  </header>
+  <div class="page-header">
+    <h1>Discover Meetings</h1>
+    <p>Find and join amazing meetings in your area</p>
+  </div>
 
   <div class="search-filters">
     <div class="filter-group">
@@ -28,7 +15,7 @@
         class="search-input"
       />
       <button class="search-btn" (click)="navigateToSearch()" title="Advanced Search">
-        <i class="icon-search"></i>
+        <app-icon name="search"></app-icon>
       </button>
     </div>
     <div class="filter-group">
@@ -52,7 +39,7 @@
     </div>
   </div>
 
-  <div class="meetings-grid" *ngIf="!isLoading; else loadingTemplate">
+  <div class="meetings-grid" *ngIf="!isLoading && meetings; else loadingTemplate">
     <div class="meeting-card" *ngFor="let meeting of meetings" (click)="viewMeeting(meeting.id)">
       <div class="meeting-header">
         <h3>{{ meeting.title }}</h3>
@@ -65,21 +52,21 @@
 
       <div class="meeting-meta">
         <div class="meta-item">
-          <i class="icon-calendar"></i>
-          <span>{{ formatDate(meeting.startDate) }}</span>
+          <app-icon name="calendar"></app-icon>
+          <span>{{ formatDate(meeting.startDateTime) }}</span>
         </div>
         <div class="meta-item">
-          <i class="icon-location"></i>
+          <app-icon name="location"></app-icon>
           <span>{{ meeting.location }}</span>
         </div>
         <div class="meta-item">
-          <i class="icon-users"></i>
-          <span>{{ meeting.attendees.length }} attendees</span>
+          <app-icon name="users"></app-icon>
+          <span>{{ meeting.attendeeCount || 0 }} attendees</span>
         </div>
       </div>
 
       <div class="meeting-organizer">
-        <span>Organized by {{ meeting.organizer.firstName }} {{ meeting.organizer.lastName }}</span>
+        <span>Organized by {{ meeting.creatorName || 'Unknown' }}</span>
       </div>
     </div>
   </div>
@@ -91,7 +78,7 @@
     </div>
   </ng-template>
 
-  <div class="empty-state" *ngIf="!isLoading && meetings.length === 0">
+  <div class="empty-state" *ngIf="!isLoading && meetings && meetings.length === 0">
     <h3>No meetings found</h3>
     <p>Try adjusting your search criteria or create a new meeting.</p>
     <button class="btn btn-primary" routerLink="/meetings/create">Create Your First Meeting</button>

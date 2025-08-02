@@ -4,11 +4,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MeetingsService } from '../../../core/services/meetings.service';
 import { Meeting, SearchFilters } from '../../../shared/models';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-search-results',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, IconComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss'
 })
@@ -67,11 +68,13 @@ export class SearchResultsComponent implements OnInit {
 
     this.meetingsService.getAllMeetings(this.filters).subscribe({
       next: (response) => {
-        this.meetings = response.items;
+        // Handle both array response and paginated response
+        this.meetings = Array.isArray(response) ? response : (response?.items || []);
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Search failed:', error);
+        this.meetings = [];
         this.isLoading = false;
       }
     });

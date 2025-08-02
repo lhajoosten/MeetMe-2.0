@@ -1,6 +1,7 @@
 using AutoMapper;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Search.DTOs;
 using MeetMe.Domain.Entities;
 using MeetMe.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -854,7 +855,7 @@ public class SearchService : ISearchService
     private async Task TrackSearchQueryAsync(
         string query,
         string searchType,
-        Guid? userId,
+        int? userId,
         int resultCount,
         TimeSpan searchDuration,
         CancellationToken cancellationToken = default)

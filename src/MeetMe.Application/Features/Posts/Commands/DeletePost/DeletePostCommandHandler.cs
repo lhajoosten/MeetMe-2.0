@@ -39,8 +39,8 @@ public class DeletePostCommandHandler : IRequestHandler<DeletePostCommand, Resul
             }
 
             // Soft delete the post
-            await _postCommandRepository.SoftDeleteAsync(post, request.UserId.ToString(), cancellationToken);
-            await _unitOfWork.SaveChangesAsync(request.UserId.ToString(), cancellationToken);
+            await _postCommandRepository.SoftDeleteAsync(post, request.UserId, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(request.UserId, cancellationToken);
 
             return Result.Success(true);
         }

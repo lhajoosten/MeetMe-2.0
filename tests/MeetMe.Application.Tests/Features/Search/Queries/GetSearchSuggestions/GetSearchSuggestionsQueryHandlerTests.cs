@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MeetMe.Application.Common.Interfaces;
 using MeetMe.Application.Common.Models;
+using MeetMe.Application.Features.Search.DTOs;
 using MeetMe.Application.Features.Search.Queries.GetSearchSuggestions;
 using Moq;
 

@@ -1,9 +1,9 @@
-using MediatR;
+using MeetMe.Application.Common.Abstraction;
 using MeetMe.Application.Common.Models;
 
 namespace MeetMe.Application.Features.Users.Commands.CreateUser;
 
-public record CreateUserCommand : IRequest<Result<Guid>>
+public record CreateUserCommand : ICommand<int>
 {
     public string FirstName { get; init; } = string.Empty;
     public string LastName { get; init; } = string.Empty;

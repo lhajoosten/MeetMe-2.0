@@ -4,7 +4,7 @@ using MeetMe.Domain.ValueObjects;
 
 namespace MeetMe.Domain.Entities
 {
-    public class User : BaseEntity<Guid>
+    public class User : BaseEntity<int>
     {
         public string FirstName { get; private set; } = string.Empty;
         public string LastName { get; private set; } = string.Empty;
@@ -14,7 +14,6 @@ namespace MeetMe.Domain.Entities
         public string? ProfilePictureUrl { get; private set; }
         public int RoleId { get; private set; }
 
-        public MMIdentity? Identity { get; private set; }
         public Role? Role { get; private set; }
 
         public ICollection<Meeting> CreatedMeetings { get; private set; } = new List<Meeting>();
@@ -32,7 +31,6 @@ namespace MeetMe.Domain.Entities
 
             return new User
             {
-                Id = Guid.NewGuid(),
                 FirstName = firstName,
                 LastName = lastName,
                 Email = Email.Create(email),
@@ -49,25 +47,11 @@ namespace MeetMe.Domain.Entities
 
             return new User
             {
-                Id = Guid.NewGuid(),
                 FirstName = firstName,
                 LastName = lastName,
                 Email = email,
                 PasswordHash = passwordHash,
                 Bio = bio
-            };
-        }
-
-        public static User CreateFromIdentity(MMIdentity identity)
-        {
-            Guard.Against.Null(identity, nameof(identity), "Identity cannot be null when creating a user from identity.");
-            
-            return new User
-            {
-                Identity = identity,
-                FirstName = identity.FirstName ?? string.Empty,
-                LastName = identity.LastName ?? string.Empty,
-                Email = Email.Create(identity.Email ?? string.Empty),
             };
         }
 
@@ -95,19 +79,6 @@ namespace MeetMe.Domain.Entities
          
             Role = role;
             RoleId = role.Id;
-            LastModifiedDate = DateTime.Now;
-        }
-
-        public void SetIdentity(MMIdentity identity)
-        {
-            Guard.Against.Null(identity, nameof(identity), "Identity cannot be null when setting user identity.");
-            
-            if (Identity != null)
-            {
-                throw new InvalidOperationException("Identity is already set for this user.");
-            }
-
-            Identity = identity;
             LastModifiedDate = DateTime.Now;
         }
 
